@@ -1,8 +1,8 @@
 package dbr
 
 import (
-	bgo "github.com/ChieveiT/bgo"
 	dbr "github.com/gocraft/dbr/opentracing"
+	bgo "github.com/pickjunk/bgo"
 	log "github.com/sirupsen/logrus"
 )
 

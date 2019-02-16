@@ -4,13 +4,13 @@ import (
 	"context"
 	"net/http"
 
-	bgo "github.com/ChieveiT/bgo"
 	dbr "github.com/gocraft/dbr"
 	httprouter "github.com/julienschmidt/httprouter"
+	bgo "github.com/pickjunk/bgo"
 )
 
-// DbrMiddleware inject dbr session to context
-func DbrMiddleware(conn *dbr.Connection) bgo.Middleware {
+// Middleware inject dbr session to context
+func Middleware(conn *dbr.Connection) bgo.Middleware {
 	if conn == nil {
 		conn = New()
 	}

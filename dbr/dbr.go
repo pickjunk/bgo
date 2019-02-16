@@ -1,7 +1,7 @@
 package dbr
 
 import (
-	bgo "github.com/ChieveiT/bgo"
+	bgo "github.com/pickjunk/bgo"
 	dbr "github.com/gocraft/dbr"
 )
 
