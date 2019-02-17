@@ -1,6 +1,8 @@
 package dbr
 
 import (
+	// mysql driver
+	_ "github.com/go-sql-driver/mysql"
 	dbr "github.com/gocraft/dbr"
 	bgo "github.com/pickjunk/bgo"
 )
