@@ -1,6 +1,7 @@
 package bgo
 
 import (
+	"fmt"
 	"net/http"
 
 	httprouter "github.com/julienschmidt/httprouter"
@@ -32,6 +33,22 @@ func New() *Router {
 			recoverMiddleware,
 		},
 	}
+}
+
+// ListenAndServe is a shortcut for http.ListenAndServe
+func (r *Router) ListenAndServe() {
+	port := "8080"
+	switch p := Config["port"].(type) {
+	case int:
+		port = fmt.Sprintf("%d", p)
+	case string:
+		port = p
+	default:
+		Log.Fatal("port must be int or string")
+	}
+
+	Log.WithField("port", port).Info("http.ListenAndServe")
+	Log.Fatal(http.ListenAndServe(":"+port, r))
 }
 
 // Prefix append prefix
