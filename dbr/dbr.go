@@ -40,7 +40,7 @@ func New() *dbr.Connection {
 		bgo.Log.Panic(err)
 	}
 
-	bgo.Log.Info("dbr connected")
+	bgo.Log.WithField("dsn", dsn).Info("dbr.Open")
 
 	return conn
 }
