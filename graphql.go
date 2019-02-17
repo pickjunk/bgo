@@ -10,6 +10,7 @@ import (
 	graphql "github.com/graph-gophers/graphql-go"
 	relay "github.com/graph-gophers/graphql-go/relay"
 	httprouter "github.com/julienschmidt/httprouter"
+	log "github.com/sirupsen/logrus"
 )
 
 // Graphql struct
@@ -22,7 +23,13 @@ type graphqlLogger struct{}
 
 // LogPanic is used to log recovered panic values that occur during query execution
 func (l *graphqlLogger) LogPanic(_ context.Context, value interface{}) {
-	Log.Panicf("graphql: %v", value)
+	// skip error threw with log.Panic
+	// because log.Panic has logged the error when it called
+	if _, ok := value.(*log.Entry); ok {
+		return
+	}
+
+	Log.Errorf("graphql: %v", value)
 }
 
 // Graphql create a graphql endpoint
