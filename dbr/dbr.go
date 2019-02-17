@@ -7,7 +7,7 @@ import (
 
 // New dbr.Connection
 func New() *dbr.Connection {
-	config, ok := bgo.Config["mysql"].(map[string]interface{})
+	config, ok := bgo.Config["mysql"].(map[interface{}]interface{})
 	if !ok {
 		bgo.Log.Panic("mysql config not found")
 	}
