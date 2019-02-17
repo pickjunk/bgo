@@ -1,14 +1,14 @@
 package dbr
 
 import (
-	bgo "github.com/pickjunk/bgo"
 	dbr "github.com/gocraft/dbr"
+	bgo "github.com/pickjunk/bgo"
 )
 
 // New dbr.Connection
 func New() *dbr.Connection {
-	config := bgo.Config["mysql"].(map[string]interface{})
-	if config == nil {
+	config, ok := bgo.Config["mysql"].(map[string]interface{})
+	if !ok {
 		bgo.Log.Panic("mysql config not found")
 	}
 
