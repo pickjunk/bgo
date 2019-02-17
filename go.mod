@@ -4,6 +4,7 @@ require (
 	github.com/DATA-DOG/go-sqlmock v1.3.2 // indirect
 	github.com/Gurpartap/logrus-stack v0.0.0-20170710170904-89c00d8a28f4
 	github.com/certifi/gocertifi v0.0.0-20190105021004-abcd57078448 // indirect
+	github.com/codahale/hdrhistogram v0.0.0-20161010025455-3a0bb77429bd // indirect
 	github.com/facebookgo/stack v0.0.0-20160209184415-751773369052 // indirect
 	github.com/getsentry/raven-go v0.2.0 // indirect
 	github.com/go-sql-driver/mysql v1.4.1
@@ -18,8 +19,9 @@ require (
 	github.com/rs/cors v1.6.0
 	github.com/sirupsen/logrus v1.3.0
 	github.com/stretchr/testify v1.3.0
-	github.com/uber/jaeger-client-go v2.15.0+incompatible
-	github.com/uber/jaeger-lib v2.0.0+incompatible // indirect
+	github.com/uber-go/atomic v1.3.2 // indirect
+	github.com/uber/jaeger-client-go v2.15.1-0.20190214182810-64f57863bf63+incompatible
+	github.com/uber/jaeger-lib v2.0.1-0.20190122222657-d036253de8f5+incompatible // indirect
 	golang.org/x/net v0.0.0-20190125091013-d26f9f9a57f3 // indirect
 	google.golang.org/appengine v1.4.0 // indirect
 	gopkg.in/yaml.v2 v2.2.2

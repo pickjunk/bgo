@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	graphql "github.com/graph-gophers/graphql-go"
-	relay "github.com/graph-gophers/graphql-go/relay"
 	httprouter "github.com/julienschmidt/httprouter"
 	log "github.com/sirupsen/logrus"
 )
@@ -34,7 +33,7 @@ func (l *graphqlLogger) LogPanic(_ context.Context, value interface{}) {
 
 // Graphql create a graphql endpoint
 func (r *Router) Graphql(path string, g *Graphql) *Router {
-	relayHandler := &relay.Handler{
+	relayHandler := &relayHandler{
 		Schema: graphql.MustParseSchema(
 			g.schema,
 			g.resolver,
