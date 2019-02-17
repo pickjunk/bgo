@@ -1,6 +1,7 @@
 package bgo
 
 import (
+	"context"
 	"net/http"
 	"os"
 	"regexp"
@@ -17,10 +18,21 @@ type Graphql struct {
 	resolver interface{}
 }
 
+type graphqlLogger struct{}
+
+// LogPanic is used to log recovered panic values that occur during query execution
+func (l *graphqlLogger) LogPanic(_ context.Context, value interface{}) {
+	Log.Panicf("graphql: %v", value)
+}
+
 // Graphql create a graphql endpoint
 func (r *Router) Graphql(path string, g *Graphql) *Router {
 	relayHandler := &relay.Handler{
-		Schema: graphql.MustParseSchema(g.schema, g.resolver),
+		Schema: graphql.MustParseSchema(
+			g.schema,
+			g.resolver,
+			graphql.Logger(&graphqlLogger{}),
+		),
 	}
 	r.GET(path, func(w http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 		relayHandler.ServeHTTP(w, req)
