@@ -15,6 +15,7 @@ require (
 	github.com/mattn/go-sqlite3 v1.10.0 // indirect
 	github.com/onrik/logrus v0.2.2
 	github.com/opentracing/opentracing-go v1.0.2
+	github.com/pickjunk/text_formatter v0.0.0-20190225191123-e9927e3a155f
 	github.com/pkg/errors v0.8.1 // indirect
 	github.com/rs/cors v1.6.0
 	github.com/sirupsen/logrus v1.3.0
@@ -22,6 +23,7 @@ require (
 	github.com/uber-go/atomic v1.3.2 // indirect
 	github.com/uber/jaeger-client-go v2.15.1-0.20190214182810-64f57863bf63+incompatible
 	github.com/uber/jaeger-lib v2.0.1-0.20190122222657-d036253de8f5+incompatible // indirect
+	go.uber.org/atomic v1.3.2 // indirect
 	golang.org/x/net v0.0.0-20190125091013-d26f9f9a57f3 // indirect
 	google.golang.org/appengine v1.4.0 // indirect
 	gopkg.in/yaml.v2 v2.2.2
