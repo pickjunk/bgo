@@ -4,7 +4,7 @@ import (
 	"os"
 
 	stack "github.com/Gurpartap/logrus-stack"
-	tf "github.com/pickjunk/text_formatter"
+	tf "github.com/pickjunk/bgo/text_formatter"
 	log "github.com/sirupsen/logrus"
 )
 
