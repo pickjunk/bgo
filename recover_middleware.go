@@ -1,17 +1,20 @@
 package bgo
 
 import (
+	"context"
 	"errors"
 	"net/http"
 
-	httprouter "github.com/julienschmidt/httprouter"
 	ot "github.com/opentracing/opentracing-go"
 	otlog "github.com/opentracing/opentracing-go/log"
 	log "github.com/sirupsen/logrus"
 )
 
-func recoverMiddleware(w http.ResponseWriter, req *http.Request, ps httprouter.Params, next httprouter.Handle) {
+func recoverMiddleware(ctx context.Context, next Handle) {
 	defer func() {
+		httpCtx := ctx.Value(CtxKey("http")).(*HTTP)
+		w := httpCtx.Response
+
 		if r := recover(); r != nil {
 			var err error
 			switch t := r.(type) {
@@ -30,7 +33,6 @@ func recoverMiddleware(w http.ResponseWriter, req *http.Request, ps httprouter.P
 				err = errors.New("unknown error")
 			}
 
-			ctx := req.Context()
 			span := ot.SpanFromContext(ctx)
 			if span != nil {
 				span.LogFields(otlog.String("event", "error"), otlog.Error(err))
@@ -44,5 +46,5 @@ func recoverMiddleware(w http.ResponseWriter, req *http.Request, ps httprouter.P
 		}
 	}()
 
-	next(w, req, ps)
+	next(ctx)
 }

@@ -1,12 +1,12 @@
 package bgo
 
 import (
+	"context"
 	"net/http"
 	"os"
 	"regexp"
 	"time"
 
-	httprouter "github.com/julienschmidt/httprouter"
 	ot "github.com/opentracing/opentracing-go"
 	otext "github.com/opentracing/opentracing-go/ext"
 	log "github.com/sirupsen/logrus"
@@ -30,14 +30,20 @@ func (w *statusWriter) Write(b []byte) (int, error) {
 	return n, err
 }
 
-func logMiddleware(w http.ResponseWriter, r *http.Request, ps httprouter.Params, next httprouter.Handle) {
-	ctx := r.Context()
+func logMiddleware(ctx context.Context, next Handle) {
+	httpCtx := ctx.Value(CtxKey("http")).(*HTTP)
+	w := httpCtx.Response
+	r := httpCtx.Request
+	ps := httpCtx.Params
+
 	span, ctx := ot.StartSpanFromContext(ctx, "http.handle")
 	defer span.Finish()
 
 	sw := &statusWriter{ResponseWriter: w, status: http.StatusOK}
+	ctx = context.WithValue(ctx, CtxKey("http"), &HTTP{sw, r, ps})
+
 	start := time.Now()
-	next(sw, r.WithContext(ctx), ps)
+	next(ctx)
 	duration := time.Now().Sub(start)
 
 	otext.HTTPMethod.Set(span, r.Method)

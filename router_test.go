@@ -1,12 +1,11 @@
 package bgo
 
 import (
-	"net/http"
+	"context"
 	"net/http/httptest"
 	"os"
 	"testing"
 
-	httprouter "github.com/julienschmidt/httprouter"
 	cors "github.com/rs/cors"
 	assert "github.com/stretchr/testify/assert"
 )
@@ -16,9 +15,9 @@ func TestMiddlewares(t *testing.T) {
 	foo := 0
 
 	r.Middlewares(
-		func(w http.ResponseWriter, r *http.Request, ps httprouter.Params, next httprouter.Handle) {
+		func(ctx context.Context, next Handle) {
 			foo++
-			next(w, r, ps)
+			next(ctx)
 
 			if foo != 0 {
 				t.Error("fail")
@@ -26,20 +25,20 @@ func TestMiddlewares(t *testing.T) {
 
 			foo = 200
 		},
-		func(w http.ResponseWriter, r *http.Request, ps httprouter.Params, next httprouter.Handle) {
+		func(ctx context.Context, next Handle) {
 			if foo != 1 {
 				t.Error("fail")
 			}
 			foo++
 
-			next(w, r, ps)
+			next(ctx)
 
 			if foo != 1 {
 				t.Error("fail")
 			}
 			foo--
 		},
-	).GET("/", func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	).GET("/", func(ctx context.Context) {
 		if foo != 2 {
 			t.Error("fail")
 		}
@@ -51,9 +50,9 @@ func TestMiddlewares(t *testing.T) {
 
 	foo = 0
 	r.Middlewares(
-		func(w http.ResponseWriter, r *http.Request, ps httprouter.Params, next httprouter.Handle) {
+		func(ctx context.Context, next Handle) {
 			foo++
-			next(w, r, ps)
+			next(ctx)
 
 			if foo != 0 {
 				t.Error("fail")
@@ -61,7 +60,7 @@ func TestMiddlewares(t *testing.T) {
 
 			foo = 200
 		},
-	).POST("/", func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	).POST("/", func(ctx context.Context) {
 		if foo != 1 {
 			t.Error("fail")
 		}
@@ -78,29 +77,29 @@ func TestHandle(t *testing.T) {
 
 	r.GET(
 		"/",
-		func(w http.ResponseWriter, r *http.Request, ps httprouter.Params, next httprouter.Handle) {
+		func(ctx context.Context, next Handle) {
 			foo++
-			next(w, r, ps)
+			next(ctx)
 
 			if foo != 0 {
 				t.Error("fail")
 			}
 			foo = 200
 		},
-		func(w http.ResponseWriter, r *http.Request, ps httprouter.Params, next httprouter.Handle) {
+		func(ctx context.Context, next Handle) {
 			if foo != 1 {
 				t.Error("fail")
 			}
 			foo++
 
-			next(w, r, ps)
+			next(ctx)
 
 			if foo != 1 {
 				t.Error("fail")
 			}
 			foo--
 		},
-		func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+		func(ctx context.Context) {
 			if foo != 2 {
 				t.Error("fail")
 			}
@@ -113,16 +112,16 @@ func TestHandle(t *testing.T) {
 	foo = 0
 	r.POST(
 		"/",
-		func(w http.ResponseWriter, r *http.Request, ps httprouter.Params, next httprouter.Handle) {
+		func(ctx context.Context, next Handle) {
 			foo++
-			next(w, r, ps)
+			next(ctx)
 
 			if foo != 0 {
 				t.Error("fail")
 			}
 			foo = 200
 		},
-		func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+		func(ctx context.Context) {
 			if foo != 1 {
 				t.Error("fail")
 			}
@@ -144,16 +143,16 @@ func TestHandle(t *testing.T) {
 	assert.Panics(t, func() {
 		r.GET(
 			"/",
-			func(w http.ResponseWriter, r *http.Request, ps httprouter.Params, next httprouter.Handle) {
+			func(ctx context.Context, next Handle) {
 			},
 		)
 	})
 	assert.Panics(t, func() {
 		r.GET(
 			"/",
-			func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+			func(ctx context.Context) {
 			},
-			func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+			func(ctx context.Context) {
 			},
 		)
 	})
@@ -164,14 +163,14 @@ func TestPrefix(t *testing.T) {
 	foo := 0
 
 	r.Prefix("/prefix").
-		GET("/", func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+		GET("/", func(ctx context.Context) {
 			foo++
 		}).
-		POST("/", func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+		POST("/", func(ctx context.Context) {
 			foo++
 		}).
 		Prefix("/prefix").
-		GET("/", func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+		GET("/", func(ctx context.Context) {
 			foo++
 		})
 
@@ -180,7 +179,7 @@ func TestPrefix(t *testing.T) {
 	r.ServeHTTP(httptest.NewRecorder(), httptest.NewRequest("GET", "/prefix/prefix/", nil))
 	assert.Equal(t, 3, foo)
 
-	r.Prefix("/ab").GET("c", func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	r.Prefix("/ab").GET("c", func(ctx context.Context) {
 		foo++
 	})
 
@@ -198,7 +197,7 @@ func TestCORS(t *testing.T) {
 		AllowedHeaders:   []string{"*"},
 		AllowCredentials: false,
 		// Debug:            true,
-	})).POST("/cors", func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	})).POST("/cors", func(ctx context.Context) {
 		foo++
 	})
 
@@ -215,7 +214,7 @@ func TestCORS(t *testing.T) {
 	r.ServeHTTP(w, req)
 	assert.Equal(t, "Origin", w.Header().Get("Vary"))
 
-	r.GET("/_cors", func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	r.GET("/_cors", func(ctx context.Context) {
 		foo++
 	})
 

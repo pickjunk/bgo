@@ -2,10 +2,8 @@ package dbr
 
 import (
 	"context"
-	"net/http"
 
 	dbr "github.com/gocraft/dbr"
-	httprouter "github.com/julienschmidt/httprouter"
 	bgo "github.com/pickjunk/bgo"
 )
 
@@ -15,11 +13,10 @@ func Middleware(conn *dbr.Connection) bgo.Middleware {
 		conn = New()
 	}
 
-	return func(w http.ResponseWriter, r *http.Request, ps httprouter.Params, next httprouter.Handle) {
-		ctx := r.Context()
+	return func(ctx context.Context, next bgo.Handle) {
 		db := conn.NewSession(nil)
 		ctx = context.WithValue(ctx, bgo.CtxKey("dbr"), db)
 
-		next(w, r.WithContext(ctx), ps)
+		next(ctx)
 	}
 }

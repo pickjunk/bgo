@@ -1,6 +1,7 @@
 package bgo
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
@@ -75,10 +76,17 @@ func (r *Router) CORS(c *cors.Cors) *Router {
 }
 
 // Handle func
-type Handle = func(http.ResponseWriter, *http.Request, httprouter.Params)
+type Handle = func(context.Context)
 
 // Middleware func
-type Middleware = func(http.ResponseWriter, *http.Request, httprouter.Params, httprouter.Handle)
+type Middleware = func(context.Context, Handle)
+
+// HTTP context
+type HTTP struct {
+	Response http.ResponseWriter
+	Request  *http.Request
+	Params   httprouter.Params
+}
 
 // Handle define a route
 func (r *Router) Handle(method, path string, middlewaresAndHandle ...interface{}) *Router {
@@ -87,7 +95,7 @@ func (r *Router) Handle(method, path string, middlewaresAndHandle ...interface{}
 		Log.Panic("expect bgo.Handle")
 	}
 
-	finalHandle, ok := middlewaresAndHandle[l-1].(Handle)
+	handle, ok := middlewaresAndHandle[l-1].(Handle)
 	if !ok {
 		Log.Panicf("expect bgo.Handle, but get %T", middlewaresAndHandle[l-1])
 	}
@@ -104,30 +112,38 @@ func (r *Router) Handle(method, path string, middlewaresAndHandle ...interface{}
 	// handle wrapped with middlewares
 	for i := len(middlewares) - 1; i >= 0; i-- {
 		middleware := middlewares[i]
-		next := finalHandle
-		finalHandle = func(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
-			middleware(w, req, ps, next)
+		next := handle
+		handle = func(ctx context.Context) {
+			middleware(ctx, next)
 		}
+	}
+
+	// wrap it as httprouter.Handle
+	// attach response, request, params to context
+	hrHandle := func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+		ctx := r.Context()
+		ctx = context.WithValue(ctx, CtxKey("http"), &HTTP{w, r, ps})
+		handle(ctx)
 	}
 
 	hr := r.Router
 
 	// compatible with rs/cors
 	if r.cors != nil {
-		innerHandle := finalHandle
-		finalHandle = func(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
-			r.cors.HandlerFunc(w, req)
-			innerHandle(w, req, ps)
-		}
-
 		if method != "OPTIONS" {
 			hr.Handle("OPTIONS", r.prefix+path, func(w http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 				r.cors.HandlerFunc(w, req)
 			})
 		}
+
+		innerHandle := hrHandle
+		hrHandle = func(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
+			r.cors.HandlerFunc(w, req)
+			innerHandle(w, req, ps)
+		}
 	}
 
-	hr.Handle(method, r.prefix+path, finalHandle)
+	hr.Handle(method, r.prefix+path, hrHandle)
 
 	return r
 }
