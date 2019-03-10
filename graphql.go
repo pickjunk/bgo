@@ -33,18 +33,17 @@ func (l *graphqlLogger) LogPanic(_ context.Context, value interface{}) {
 
 // Graphql create a graphql endpoint
 func (r *Router) Graphql(path string, g *Graphql) *Router {
-	relayHandler := &relayHandler{
-		Schema: graphql.MustParseSchema(
-			g.schema,
-			g.resolver,
-			graphql.Logger(&graphqlLogger{}),
-		),
-	}
-	r.GET(path, func(w http.ResponseWriter, req *http.Request, _ httprouter.Params) {
-		relayHandler.ServeHTTP(w, req)
+	schema := graphql.MustParseSchema(
+		g.schema,
+		g.resolver,
+		graphql.Logger(&graphqlLogger{}),
+	)
+
+	r.GET(path, func(ctx context.Context) {
+		relay(ctx, schema)
 	})
-	r.POST(path, func(w http.ResponseWriter, req *http.Request, _ httprouter.Params) {
-		relayHandler.ServeHTTP(w, req)
+	r.POST(path, func(ctx context.Context) {
+		relay(ctx, schema)
 	})
 
 	if os.Getenv("ENV") != "production" {
