@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"regexp"
 	"strings"
 
 	graphql "github.com/graph-gophers/graphql-go"
@@ -30,11 +31,20 @@ func relay(ctx context.Context, schema *graphql.Schema) {
 
 	// https://github.com/graph-gophers/graphql-go/pull/207
 	if response.Errors != nil {
-		// mask panic error
+		re := regexp.MustCompile(`{"code":\d+,"msg":".*?"}`)
 		panicMsg := "graphql: panic occurred"
+
 		for _, rErr := range response.Errors {
-			if isPanic := strings.Contains(rErr.Message, panicMsg); isPanic {
+			// extract business error
+			if errMsg := re.FindString(rErr.Message); errMsg != "" {
+				rErr.Message = errMsg
+				continue
+			}
+
+			// mask panic error
+			if strings.Contains(rErr.Message, panicMsg) {
 				rErr.Message = panicMsg
+				continue
 			}
 		}
 	}

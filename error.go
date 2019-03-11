@@ -21,11 +21,3 @@ func Throw(code int, msg string) {
 		Msg:  msg,
 	})
 }
-
-// Error return a BusinessError
-func Error(code int, msg string) error {
-	return &BusinessError{
-		Code: code,
-		Msg:  msg,
-	}
-}
