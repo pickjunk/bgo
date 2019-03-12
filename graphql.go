@@ -20,6 +20,11 @@ type graphqlLogger struct{}
 
 // LogPanic is used to log recovered panic values that occur during query execution
 func (l *graphqlLogger) LogPanic(_ context.Context, value interface{}) {
+	// skip business error
+	if _, ok := value.(*BusinessError); ok {
+		return
+	}
+
 	// skip error threw with log.Panic
 	// because log.Panic has logged the error when it called
 	if _, ok := value.(*log.Entry); ok {
