@@ -2,13 +2,11 @@ package bgo
 
 import (
 	"context"
-	"net/http"
 	"os"
 	"regexp"
 	"strings"
 
 	graphql "github.com/graph-gophers/graphql-go"
-	httprouter "github.com/julienschmidt/httprouter"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -47,8 +45,9 @@ func (r *Router) Graphql(path string, g *Graphql) *Router {
 	})
 
 	if os.Getenv("ENV") != "production" {
-		r.GET(path+"-i", func(w http.ResponseWriter, _ *http.Request, _ httprouter.Params) {
-			w.Write([]byte(g.Graphiql(path)))
+		r.GET(path+"-i", func(ctx context.Context) {
+			h := ctx.Value(CtxKey("http")).(*HTTP)
+			h.Response.Write([]byte(g.Graphiql(path)))
 		})
 	}
 
