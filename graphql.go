@@ -57,6 +57,15 @@ func (r *Router) Graphql(path string, g *Graphql) *Router {
 // NewGraphql create a Graphql struct
 func NewGraphql(resolver interface{}) *Graphql {
 	return &Graphql{
+		schema: `
+		schema {
+			query: Query
+			mutation: Mutation
+		}
+
+		type Query {}
+		type Mutation {}
+		`,
 		resolver: resolver,
 	}
 }

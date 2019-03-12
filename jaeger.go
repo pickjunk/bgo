@@ -15,7 +15,7 @@ func (l *jaegerLogger) Error(msg string) {
 
 // Infof logs a message at info priority
 func (l *jaegerLogger) Infof(msg string, args ...interface{}) {
-	Log.Infof("jaeger: "+msg, args...)
+	Log.Debugf("jaeger: "+msg, args...)
 }
 
 // Jaeger setup a jaeger tracer
