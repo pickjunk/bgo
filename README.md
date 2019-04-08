@@ -1,4 +1,5 @@
 # bgo
+[![GoDoc](https://godoc.org/github.com/pickjunk/bgo?status.svg)](https://godoc.org/github.com/pickjunk/bgo)
 
 Business-Go Framework.
 
@@ -57,7 +58,120 @@ func main() {
 }
 ```
 
-### API
+### HTTP Context
+
+```golang
+r.GET("/:name", func(ctx context.Context) {
+  h := ctx.Value(bgo.CtxKey("http")).(*bgo.HTTP)
+  r := h.Request // *http.Request
+  w := h.Response // http.ResponseWriter
+  ps := h.Params // httprouter.Params
+})
+```
+
+### Middlewares
+
+```golang
+r.Middlewares(
+  func(ctx context.Context, next bgo.Handle) {
+    // do something
+
+    next(ctx)
+  },
+  func(ctx context.Context, next bgo.Handle) {
+    // do something
+
+    next(ctx)
+  },
+)
+```
+
+### SubRoute (Prefix + Middlewares)
+
+```golang
+subRoute1 := r.Prefix("/sub1")
+
+subRoute2 := r.Prefix("/sub1").Middlewares(
+  func(ctx context.Context, next bgo.Handle) {
+    // do something
+
+    next(ctx)
+  },
+  func(ctx context.Context, next bgo.Handle) {
+    // do something
+
+    next(ctx)
+  },
+)
+```
+
+### Graphql
+
+```golang
+type resolver struct{}
+
+var g = bgo.NewGraphql(&resolver{})
+
+func init() {
+  g.MergeSchema(`
+  schema {
+    query: Query
+  }
+
+  type Query {
+    greeting(name: String): String!
+  }
+  `)
+}
+
+func (r *resolver) Greeting(
+	ctx context.Context,
+	args struct {
+		Name   *string
+	},
+) string {
+  if args.Name == nil {
+    name := "world"
+    args.Name = &name
+  }
+	return "hello " + args.Name
+}
+
+func main() {
+  r := bgo.New()
+
+  r.Graphql("/graphql", g)
+}
+```
+
+### Opentracing (jaeger-client)
+
+```golang
+package main
+
+import (
+  bgo "github.com/pickjunk/bgo"
+  config "github.com/uber/jaeger-client-go/config"
+)
+
+func main() {
+  r := bgo.New()
+
+  closer := bgo.Jaeger(&config.Configuration{
+    ServiceName: "bgo-example",
+    Sampler: &config.SamplerConfig{
+      Type:  "const",
+      Param: 1,
+    },
+    Reporter: &config.ReporterConfig{
+      LogSpans: true,
+    },
+  })
+  defer closer.Close()
+
+  r.ListenAndServe()
+}
+```
 
 ### Example
 
