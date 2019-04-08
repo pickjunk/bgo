@@ -5,11 +5,12 @@ Business-Go Framework.
 
 ### Features
 
-- High-Performance Router base on [httprouter](https://github.com/julienschmidt/httprouter)
-- Pretty Middewares
-- Uniform logger format. Logger base on [logrus](https://github.com/sirupsen/logrus)
+- High-performance router, base on [httprouter](https://github.com/julienschmidt/httprouter)
+- Pretty middewares
+- Uniform logger, base on [logrus](https://github.com/sirupsen/logrus)
 - Opentracing, integrate jaeger-client
 - Graphql, base on [graph-gophers/graphql-go](https://github.com/graph-gophers/graphql-go)
+- CORS, base on [rs/cors](https://github.com/rs/cors)
 
 ### Quick Start
 
@@ -82,6 +83,16 @@ r.Middlewares(
     // do something
 
     next(ctx)
+  },
+).GET(
+  "/"
+  func(ctx context.Context, next bgo.Handle) {
+    // do something
+
+    next(ctx)
+  },
+  func(ctx context.Context) {
+    // do something
   },
 )
 ```
@@ -168,6 +179,67 @@ func main() {
     },
   })
   defer closer.Close()
+
+  r.ListenAndServe()
+}
+```
+
+### CORS
+
+```golang
+package main
+
+import (
+  bgo "github.com/pickjunk/bgo"
+  "github.com/rs/cors"
+)
+
+func main() {
+  r := bgo.New()
+
+  r.CORS(cors.AllowAll()).GET("/", func(ctx context.Context) {
+    // do something
+  })
+
+  r.ListenAndServe()
+}
+```
+
+### Logger
+
+```golang
+package main
+
+import (
+  bgo "github.com/pickjunk/bgo"
+)
+
+func main() {
+  logger := bgo.Log // logger is a *logrus.Logger
+
+  // log everything as logrus
+  // https://github.com/sirupsen/logrus
+}
+```
+
+### Business Error
+
+```golang
+package main
+
+import (
+  bgo "github.com/pickjunk/bgo"
+)
+
+func main() {
+  r := bgo.New()
+
+  r.GET("/", func(ctx context.Context) {
+    // Throw will trigger a panic, which internal recover middleware
+    // will catch and unmarshal to the response content as
+    // `{"code":10001,"msg":"passwd error"}`
+    bgo.Throw(10001, "passwd error")
+  })
 
   r.ListenAndServe()
 }
