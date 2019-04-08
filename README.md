@@ -136,16 +136,16 @@ func init() {
 }
 
 func (r *resolver) Greeting(
-	ctx context.Context,
-	args struct {
-		Name   *string
-	},
+  ctx context.Context,
+  args struct {
+    Name  *string
+  },
 ) string {
   if args.Name == nil {
     name := "world"
     args.Name = &name
   }
-	return "hello " + args.Name
+  return "hello " + args.Name
 }
 
 func main() {
