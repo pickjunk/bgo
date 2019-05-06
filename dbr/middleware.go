@@ -8,15 +8,13 @@ import (
 )
 
 // Middleware inject dbr session to context
-func Middleware(conn *dbr.Connection) bgo.Middleware {
-	if conn == nil {
-		conn = New()
+func Middleware(db *dbr.Session) bgo.Middleware {
+	if db == nil {
+		db = New()
 	}
 
 	return func(ctx context.Context, next bgo.Handle) {
-		db := conn.NewSession(nil)
 		ctx = context.WithValue(ctx, bgo.CtxKey("dbr"), db)
-
 		next(ctx)
 	}
 }
