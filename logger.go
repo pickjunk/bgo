@@ -18,7 +18,8 @@ var Log = initLogger()
 
 func initLogger() *Logger {
 	if os.Getenv("ENV") == "production" {
-		log.SetFormatter(&log.JSONFormatter{})
+		log.SetFormatter(&tf.TextFormatter{})
+		log.SetLevel(log.InfoLevel)
 	} else {
 		log.SetFormatter(&tf.TextFormatter{})
 		log.SetLevel(log.DebugLevel)
