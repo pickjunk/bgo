@@ -13,20 +13,27 @@ var Config = initConfig()
 func initConfig() map[string]interface{} {
 	var config map[string]interface{}
 
-	c, err := os.Open("config.yml")
+	var file string
+	if os.Getenv("ENV") == "testing" {
+		file = "config_test.yml"
+	} else {
+		file = "config.yml"
+	}
+
+	c, err := os.Open(file)
 	if err != nil {
-		Log.Warn("config.yml not found")
+		Log.Warn(file + " not found")
 		return config
 	}
 
 	data, err := ioutil.ReadAll(c)
 	if err != nil {
-		Log.Panic("config.yml not found")
+		Log.Panic(file + " not found")
 	}
 
 	err = yaml.Unmarshal(data, &config)
 	if err != nil {
-		Log.Panic("config.yml parse error")
+		Log.Panic(file + " parse error")
 	}
 
 	return config
