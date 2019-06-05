@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"net"
 
 	httprouter "github.com/julienschmidt/httprouter"
 	sentry "github.com/onrik/logrus/sentry"
@@ -52,6 +53,11 @@ func (r *Router) ListenAndServe() {
 
 	Log.WithField("port", port).Info("http.ListenAndServe")
 	Log.Fatal(http.ListenAndServe(":"+port, r))
+}
+
+// Serve is a shortcut for http.Serve
+func (r *Router) Serve(l net.Listener) {
+	Log.Fatal(http.Serve(l, r))
 }
 
 // Prefix append prefix
