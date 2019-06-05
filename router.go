@@ -95,9 +95,17 @@ func (r *Router) Handle(method, path string, middlewaresAndHandle ...interface{}
 		Log.Panic("expect bgo.Handle")
 	}
 
-	handle, ok := middlewaresAndHandle[l-1].(Handle)
-	if !ok {
-		Log.Panicf("expect bgo.Handle, but get %T", middlewaresAndHandle[l-1])
+	var handle Handle
+	switch h := middlewaresAndHandle[l-1].(type) {
+	case Handle:
+		handle = h
+	case http.Handler:
+		handle = func (ctx context.Context) {
+			c := ctx.Value(CtxKey("http")).(*HTTP)
+			h.ServeHTTP(c.Response, c.Request)
+		}
+	default:
+		Log.Panicf("expect bgo.Handle or http.Handler, but get %T", middlewaresAndHandle[l-1])
 	}
 
 	middlewares := r.middlewares
