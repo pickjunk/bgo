@@ -29,7 +29,7 @@ func New(optionalDSN ...string) *dbr.Session {
 	if dsn == "" {
 		dsn, ok = config["dsn"].(string)
 		if !ok {
-			bgo.Log.Panic("mysql dsn is required")
+			bgo.Log.Panic("config [mysql.dsn] not found")
 		}
 	}
 

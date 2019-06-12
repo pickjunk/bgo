@@ -8,7 +8,7 @@ type BusinessError struct {
 	Msg  string
 }
 
-func (e *BusinessError) Error() string {
+func (e BusinessError) Error() string {
 	return fmt.Sprintf(`{"code":%d,"msg":"%s"}`, e.Code, e.Msg)
 }
 
