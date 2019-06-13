@@ -92,7 +92,7 @@ func TestGraphql(t *testing.T) {
 	}
 
 	r := Graphql{
-		URL: "http://localhost:8080/api",
+		URL: "http://localhost:8888/api",
 		Query: `
 		query ($one: Int, $two: String) {
 			test(one: $one, two: $two) {
@@ -107,7 +107,7 @@ func TestGraphql(t *testing.T) {
 	}
 
 	r = Graphql{
-		URL: "http://localhost:8080/api",
+		URL: "http://localhost:8888/api",
 		Query: `
 		query ($one: Int, $two: String) {
 			test(one: $one, two: $two) {
@@ -129,7 +129,7 @@ func TestGraphql(t *testing.T) {
 	}
 
 	r = Graphql{
-		URL: "http://localhost:8080/api",
+		URL: "http://localhost:8888/api",
 		Query: `
 		query ($one: Int, $two: String) {
 			test(one: $one, two: $two) {
