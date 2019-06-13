@@ -1,11 +1,11 @@
 package utils
 
 import (
+	"context"
+	"net/http"
+	"regexp"
 	"testing"
 	"time"
-	"context"
-	"regexp"
-	"net/http"
 
 	_ "github.com/go-sql-driver/mysql"
 
@@ -14,6 +14,7 @@ import (
 )
 
 type resolver struct{}
+
 var g = b.NewGraphql(&resolver{})
 
 func init() {
@@ -39,7 +40,7 @@ type TestResolver struct {
 func (r *resolver) Test(
 	ctx context.Context,
 	args struct {
-		One   *int32
+		One *int32
 		Two *string
 	},
 ) *TestResolver {
@@ -91,7 +92,7 @@ func TestGraphql(t *testing.T) {
 	}
 
 	r := Graphql{
-		URL: "http://localhost:8080/api",
+		URL: "http://localhost:8888/api",
 		Query: `
 		query ($one: Int, $two: String) {
 			test(one: $one, two: $two) {
@@ -106,7 +107,7 @@ func TestGraphql(t *testing.T) {
 	}
 
 	r = Graphql{
-		URL: "http://localhost:8080/api",
+		URL: "http://localhost:8888/api",
 		Query: `
 		query ($one: Int, $two: String) {
 			test(one: $one, two: $two) {
@@ -128,7 +129,7 @@ func TestGraphql(t *testing.T) {
 	}
 
 	r = Graphql{
-		URL: "http://localhost:8080/api",
+		URL: "http://localhost:8888/api",
 		Query: `
 		query ($one: Int, $two: String) {
 			test(one: $one, two: $two) {
