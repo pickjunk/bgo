@@ -1,20 +1,22 @@
 package utils
 
 import (
-	"os"
-	"fmt"
 	"encoding/json"
+	"errors"
+	"fmt"
+	"os"
+
 	req "github.com/imroc/req"
 	b "github.com/pickjunk/bgo"
 )
 
 // Graphql struct
 type Graphql struct {
-	URL string
-	Query string
+	URL       string
+	Query     string
 	Variables map[string]interface{}
 	Operation string
-	Headers req.Header
+	Headers   req.Header
 }
 
 // Fetch execute a graphql api
@@ -22,7 +24,7 @@ func (g *Graphql) Fetch(result interface{}) error {
 	if os.Getenv("ENV") != "production" {
 		req.Debug = true
 	}
-	defer func () {
+	defer func() {
 		req.Debug = false
 	}()
 
@@ -48,7 +50,7 @@ func (g *Graphql) Fetch(result interface{}) error {
 	}
 
 	var e struct {
-		Errors []struct{
+		Errors []struct {
 			Message string
 		}
 	}
@@ -60,7 +62,7 @@ func (g *Graphql) Fetch(result interface{}) error {
 		var be b.BusinessError
 		err = json.Unmarshal([]byte(e.Errors[0].Message), &be)
 		if err != nil {
-			return err
+			return errors.New(e.Errors[0].Message)
 		}
 		return &be
 	}
