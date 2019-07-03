@@ -9,6 +9,7 @@ require (
 	github.com/elazarl/go-bindata-assetfs v1.0.0
 	github.com/facebookgo/stack v0.0.0-20160209184415-751773369052 // indirect
 	github.com/getsentry/raven-go v0.2.0 // indirect
+	github.com/getsentry/sentry-go v0.1.1 // indirect
 	github.com/go-mail/mail v2.3.1+incompatible
 	github.com/go-sql-driver/mysql v1.4.1
 	github.com/gocraft/dbr v0.0.0-20190131145710-48a049970bd2
@@ -18,9 +19,8 @@ require (
 	github.com/julienschmidt/httprouter v1.2.0
 	github.com/konsorten/go-windows-terminal-sequences v1.0.1
 	github.com/mattn/go-sqlite3 v1.10.0 // indirect
-	github.com/onrik/logrus v0.2.2
+	github.com/onrik/logrus v0.4.0
 	github.com/opentracing/opentracing-go v1.0.2
-	github.com/pkg/errors v0.8.1 // indirect
 	github.com/rs/cors v1.6.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.3.0

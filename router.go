@@ -3,8 +3,8 @@ package bgo
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"net"
+	"net/http"
 
 	httprouter "github.com/julienschmidt/httprouter"
 	sentry "github.com/onrik/logrus/sentry"
@@ -24,7 +24,12 @@ type Router struct {
 func New() *Router {
 	// sentry
 	if sentryDSN, ok := Config["sentry"].(string); ok {
-		sentryHook := sentry.NewHook(sentryDSN, log.ErrorLevel, log.PanicLevel, log.FatalLevel)
+		sentryHook, err := sentry.NewHook(sentry.Options{
+			Dsn: sentryDSN,
+		}, log.ErrorLevel, log.PanicLevel, log.FatalLevel)
+		if err != nil {
+			Log.Fatal(err)
+		}
 		Log.AddHook(sentryHook)
 	}
 
@@ -106,7 +111,7 @@ func (r *Router) Handle(method, path string, middlewaresAndHandle ...interface{}
 	case Handle:
 		handle = h
 	case http.Handler:
-		handle = func (ctx context.Context) {
+		handle = func(ctx context.Context) {
 			c := ctx.Value(CtxKey("http")).(*HTTP)
 			h.ServeHTTP(c.Response, c.Request)
 		}
