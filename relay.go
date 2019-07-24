@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
+	"fmt"
 
 	graphql "github.com/graph-gophers/graphql-go"
 	log "github.com/sirupsen/logrus"
@@ -29,9 +30,9 @@ func relay(ctx context.Context, schema *graphql.Schema) {
 	}
 
 	Log.WithFields(log.Fields{
-		"schema":    params.Query,
-		"operation": params.OperationName,
-		"variables": params.Variables,
+		"schema":    stringLimit(params.Query, 200),
+		"operation": stringLimit(params.OperationName, 50),
+		"variables": stringLimit(fmt.Sprintf("%v", params.Variables), 100),
 	}).Info("graphql.Exec")
 	response := schema.Exec(ctx, params.Query, params.OperationName, params.Variables)
 

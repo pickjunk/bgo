@@ -69,7 +69,7 @@ func logMiddleware(ctx context.Context, next Handle) {
 			"ip":       ip,
 			"host":     r.Host,
 			"method":   r.Method,
-			"uri":      r.RequestURI,
+			"uri":      stringLimit(r.RequestURI, 100),
 			"status":   sw.status,
 			"length":   sw.length,
 			"ua":       r.Header.Get("User-Agent"),
@@ -78,7 +78,7 @@ func logMiddleware(ctx context.Context, next Handle) {
 	} else {
 		Log.WithFields(log.Fields{
 			"method":   r.Method,
-			"uri":      r.RequestURI,
+			"uri":      stringLimit(r.RequestURI, 100),
 			"status":   sw.status,
 			"duration": duration,
 		}).Info("http.handle")
