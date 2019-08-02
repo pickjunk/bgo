@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	graphql "github.com/graph-gophers/graphql-go"
-	log "github.com/sirupsen/logrus"
+	logrus "github.com/sirupsen/logrus"
 )
 
 // Graphql struct
@@ -27,11 +27,11 @@ func (l *graphqlLogger) LogPanic(_ context.Context, value interface{}) {
 
 	// skip error threw with log.Panic
 	// because log.Panic has logged the error when it called
-	if _, ok := value.(*log.Entry); ok {
+	if _, ok := value.(*logrus.Entry); ok {
 		return
 	}
 
-	Log.Errorf("graphql: %v", value)
+	log.Errorf("graphql: %v", value)
 }
 
 // Graphql create a graphql endpoint

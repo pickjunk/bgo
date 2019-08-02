@@ -9,23 +9,23 @@ import (
 func Mail(to []string, title string, content string) error {
 	cfg, ok := b.Config["mail"].(map[string]interface{})
 	if !ok {
-		b.Log.Panic("config [mail] not found")
+		log.Panic("config [mail] not found")
 	}
 	mailHost, ok := cfg["host"].(string)
 	if !ok {
-		b.Log.Panic("config [mail.host] not found")
+		log.Panic("config [mail.host] not found")
 	}
 	mailPort, ok := cfg["port"].(int)
 	if !ok {
-		b.Log.Panic("config [mail.port] not found")
+		log.Panic("config [mail.port] not found")
 	}
 	mailUser, ok := cfg["user"].(string)
 	if !ok {
-		b.Log.Panic("config [mail.user] not found")
+		log.Panic("config [mail.user] not found")
 	}
 	mailPasswd, ok := cfg["passwd"].(string)
 	if !ok {
-		b.Log.Panic("config [mail.passwd] not found")
+		log.Panic("config [mail.passwd] not found")
 	}
 
 	// filter empty

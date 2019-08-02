@@ -2,13 +2,17 @@ package bgo
 
 import (
 	"context"
+	"io/ioutil"
 	"net/http/httptest"
-	"os"
 	"testing"
 
 	cors "github.com/rs/cors"
 	assert "github.com/stretchr/testify/assert"
 )
+
+func init() {
+	log.Logger.SetOutput(ioutil.Discard)
+}
 
 func TestMiddlewares(t *testing.T) {
 	r := New()
@@ -130,10 +134,6 @@ func TestHandle(t *testing.T) {
 	)
 	r.ServeHTTP(httptest.NewRecorder(), httptest.NewRequest("POST", "/", nil))
 	assert.Equal(t, 200, foo)
-
-	// block log print, avoid panic msg to print
-	Log.SetOutput(nil)
-	defer Log.SetOutput(os.Stdout)
 
 	assert.Panics(t, func() {
 		r.GET(

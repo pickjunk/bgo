@@ -1,30 +1,30 @@
 package dbr
 
 import (
+	"time"
+
 	dbr "github.com/gocraft/dbr/opentracing"
-	bgo "github.com/pickjunk/bgo"
-	log "github.com/sirupsen/logrus"
+	b "github.com/pickjunk/bgo"
+	logrus "github.com/sirupsen/logrus"
 )
 
 // Logger for dbr
 type Logger struct {
-	*bgo.Logger
+	*logrus.Entry
 	*dbr.EventReceiver
 }
 
-// NewLogger for dbr
-func NewLogger() *Logger {
-	return &Logger{
-		bgo.Log,
-		&dbr.EventReceiver{},
-	}
+// Log log dbr
+var log = &Logger{
+	b.Log.WithField("prefix", "dbr"),
+	&dbr.EventReceiver{},
 }
 
 // ---------- implements dbr EventReceiver interface ----------
 // https://github.com/gocraft/dbr/blob/master/event.go
 
-func (l *Logger) kvs2Fields(kvs map[string]string) log.Fields {
-	fields := log.Fields{}
+func (l *Logger) kvs2Fields(kvs map[string]string) logrus.Fields {
+	fields := logrus.Fields{}
 	for k, v := range kvs {
 		fields[k] = v
 	}
@@ -57,12 +57,12 @@ func (l *Logger) EventErrKv(eventName string, err error, kvs map[string]string) 
 
 // Timing func
 func (l *Logger) Timing(eventName string, nanoseconds int64) {
-	l.WithField("timing", nanoseconds).Info(eventName)
+	l.WithField("duration", (time.Duration(nanoseconds) * time.Nanosecond).String()).Info(eventName)
 }
 
 // TimingKv func
 func (l *Logger) TimingKv(eventName string, nanoseconds int64, kvs map[string]string) {
 	fields := l.kvs2Fields(kvs)
-	fields["timing"] = nanoseconds
+	fields["duration"] = (time.Duration(nanoseconds) * time.Nanosecond).String()
 	l.WithFields(fields).Info(eventName)
 }

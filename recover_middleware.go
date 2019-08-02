@@ -7,7 +7,7 @@ import (
 
 	ot "github.com/opentracing/opentracing-go"
 	otlog "github.com/opentracing/opentracing-go/log"
-	log "github.com/sirupsen/logrus"
+	logrus "github.com/sirupsen/logrus"
 )
 
 func recoverMiddleware(ctx context.Context, next Handle) {
@@ -21,9 +21,9 @@ func recoverMiddleware(ctx context.Context, next Handle) {
 			case *BusinessError:
 				w.Write([]byte(t.Error()))
 				return
-			case *log.Entry:
-				// error from Log.Panic, skip logging
-				// because Log.Panic has logged the error when it called
+			case *logrus.Entry:
+				// error from log.Panic, skip logging
+				// because log.Panic has logged the error when it called
 				err = nil
 			case string:
 				err = errors.New(t)
@@ -39,7 +39,7 @@ func recoverMiddleware(ctx context.Context, next Handle) {
 			}
 
 			if err != nil {
-				Log.Error(err)
+				log.Error(err)
 			}
 
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
