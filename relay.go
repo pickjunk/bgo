@@ -3,13 +3,13 @@ package bgo
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"regexp"
 	"strings"
-	"fmt"
 
 	graphql "github.com/graph-gophers/graphql-go"
-	log "github.com/sirupsen/logrus"
+	logrus "github.com/sirupsen/logrus"
 )
 
 // fork from github.com/graph-gophers/graphql-go/relay
@@ -29,10 +29,10 @@ func relay(ctx context.Context, schema *graphql.Schema) {
 		return
 	}
 
-	Log.WithFields(log.Fields{
-		"schema":    stringLimit(params.Query, 200),
-		"operation": stringLimit(params.OperationName, 50),
-		"variables": stringLimit(fmt.Sprintf("%v", params.Variables), 100),
+	log.WithFields(logrus.Fields{
+		"schema":    params.Query,
+		"operation": params.OperationName,
+		"variables": fmt.Sprintf("%v", params.Variables),
 	}).Info("graphql.Exec")
 	response := schema.Exec(ctx, params.Query, params.OperationName, params.Variables)
 

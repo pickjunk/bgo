@@ -49,7 +49,7 @@ func main() {
     var test struct{}
     err := db.Select(`"empty"`).LoadOneContext(ctx, &test)
     if err != nil {
-      bgo.Log.Panic(err)
+      bgo.log.Panic(err)
     }
 
     w.Write([]byte(`dbr: SELECT "empty"`))

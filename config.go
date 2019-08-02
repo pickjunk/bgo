@@ -4,6 +4,8 @@ import (
 	"io/ioutil"
 	"os"
 
+	sentry "github.com/onrik/logrus/sentry"
+	logrus "github.com/sirupsen/logrus"
 	yaml "gopkg.in/yaml.v2"
 )
 
@@ -22,18 +24,29 @@ func initConfig() map[string]interface{} {
 
 	c, err := os.Open(file)
 	if err != nil {
-		Log.Warn(file + " not found")
+		log.Warn(file + " not found")
 		return config
 	}
 
 	data, err := ioutil.ReadAll(c)
 	if err != nil {
-		Log.Panic(file + " not found")
+		log.Panic(file + " not found")
 	}
 
 	err = yaml.Unmarshal(data, &config)
 	if err != nil {
-		Log.Panic(file + " parse error")
+		log.Panic(file + " parse error")
+	}
+
+	// sentry
+	if sentryDSN, ok := config["sentry"].(string); ok {
+		sentryHook, err := sentry.NewHook(sentry.Options{
+			Dsn: sentryDSN,
+		}, logrus.ErrorLevel, logrus.PanicLevel, logrus.FatalLevel)
+		if err != nil {
+			log.Fatal(err)
+		}
+		Log.AddHook(sentryHook)
 	}
 
 	return config

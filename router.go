@@ -7,9 +7,7 @@ import (
 	"net/http"
 
 	httprouter "github.com/julienschmidt/httprouter"
-	sentry "github.com/onrik/logrus/sentry"
 	cors "github.com/rs/cors"
-	log "github.com/sirupsen/logrus"
 )
 
 // Router thin wrapper for httprouter.Router
@@ -22,17 +20,6 @@ type Router struct {
 
 // New create a bgo Router
 func New() *Router {
-	// sentry
-	if sentryDSN, ok := Config["sentry"].(string); ok {
-		sentryHook, err := sentry.NewHook(sentry.Options{
-			Dsn: sentryDSN,
-		}, log.ErrorLevel, log.PanicLevel, log.FatalLevel)
-		if err != nil {
-			Log.Fatal(err)
-		}
-		Log.AddHook(sentryHook)
-	}
-
 	return &Router{
 		Router: httprouter.New(),
 		middlewares: []Middleware{
@@ -52,17 +39,17 @@ func (r *Router) ListenAndServe() {
 		case string:
 			port = p
 		default:
-			Log.Fatal("port must be int or string")
+			log.Fatal("port must be int or string")
 		}
 	}
 
-	Log.WithField("port", port).Info("http.ListenAndServe")
-	Log.Fatal(http.ListenAndServe(":"+port, r))
+	log.WithField("port", port).Info("http.ListenAndServe")
+	log.Fatal(http.ListenAndServe(":"+port, r))
 }
 
 // Serve is a shortcut for http.Serve
 func (r *Router) Serve(l net.Listener) {
-	Log.Fatal(http.Serve(l, r))
+	log.Fatal(http.Serve(l, r))
 }
 
 // Prefix append prefix
@@ -103,7 +90,7 @@ type HTTP struct {
 func (r *Router) Handle(method, path string, middlewaresAndHandle ...interface{}) *Router {
 	l := len(middlewaresAndHandle)
 	if l == 0 {
-		Log.Panic("expect bgo.Handle")
+		log.Panic("expect bgo.Handle")
 	}
 
 	var handle Handle
@@ -116,14 +103,14 @@ func (r *Router) Handle(method, path string, middlewaresAndHandle ...interface{}
 			h.ServeHTTP(c.Response, c.Request)
 		}
 	default:
-		Log.Panicf("expect bgo.Handle or http.Handler, but get %T", middlewaresAndHandle[l-1])
+		log.Panicf("expect bgo.Handle or http.Handler, but get %T", middlewaresAndHandle[l-1])
 	}
 
 	middlewares := r.middlewares
 	for i := 0; i < l-1; i++ {
 		middleware, ok := middlewaresAndHandle[i].(Middleware)
 		if !ok {
-			Log.Panicf("expect bgo.Middleware, but get %T", middlewaresAndHandle[i])
+			log.Panicf("expect bgo.Middleware, but get %T", middlewaresAndHandle[i])
 		}
 		middlewares = append(middlewares, middleware)
 	}

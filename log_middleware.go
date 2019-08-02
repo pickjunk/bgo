@@ -9,7 +9,7 @@ import (
 
 	ot "github.com/opentracing/opentracing-go"
 	otext "github.com/opentracing/opentracing-go/ext"
-	log "github.com/sirupsen/logrus"
+	l "github.com/sirupsen/logrus"
 )
 
 // https://www.reddit.com/r/golang/comments/7p35s4/how_do_i_get_the_response_status_for_my_middleware/
@@ -65,20 +65,20 @@ func logMiddleware(ctx context.Context, next Handle) {
 	ip = re.ReplaceAllString(ip, "")
 
 	if os.Getenv("ENV") == "production" {
-		Log.WithFields(log.Fields{
+		log.WithFields(l.Fields{
 			"ip":       ip,
 			"host":     r.Host,
 			"method":   r.Method,
-			"uri":      stringLimit(r.RequestURI, 100),
+			"uri":      r.RequestURI,
 			"status":   sw.status,
 			"length":   sw.length,
 			"ua":       r.Header.Get("User-Agent"),
 			"duration": duration,
 		}).Info("http.handle")
 	} else {
-		Log.WithFields(log.Fields{
+		log.WithFields(l.Fields{
 			"method":   r.Method,
-			"uri":      stringLimit(r.RequestURI, 100),
+			"uri":      r.RequestURI,
 			"status":   sw.status,
 			"duration": duration,
 		}).Info("http.handle")

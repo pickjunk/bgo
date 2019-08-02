@@ -29,14 +29,14 @@ func New(optionalDSN ...string) *dbr.Session {
 	if dsn == "" {
 		dsn, ok = config["dsn"].(string)
 		if !ok {
-			bgo.Log.Panic("config [mysql.dsn] not found")
+			log.Panic("config [mysql.dsn] not found")
 		}
 	}
 
 	// open connection
-	conn, err := dbr.Open("mysql", dsn, NewLogger())
+	conn, err := dbr.Open("mysql", dsn, log)
 	if err != nil {
-		bgo.Log.Panic(err)
+		log.Panic(err)
 	}
 
 	// connection pool config
@@ -54,10 +54,10 @@ func New(optionalDSN ...string) *dbr.Session {
 	// ping
 	err = conn.DB.Ping()
 	if err != nil {
-		bgo.Log.Panic(err)
+		log.Panic(err)
 	}
 
-	bgo.Log.
+	log.
 		WithField("dsn", dsn).
 		WithField("maxIdleConns", maxIdleConns).
 		WithField("maxOpenConns", maxOpenConns).

@@ -5,34 +5,35 @@ import (
 
 	stack "github.com/Gurpartap/logrus-stack"
 	tf "github.com/pickjunk/bgo/text_formatter"
-	log "github.com/sirupsen/logrus"
+	logrus "github.com/sirupsen/logrus"
 )
 
-// Logger struct
-type Logger struct {
-	*log.Logger
-}
-
-// Log instance
+// Log bgo Logger
 var Log = initLogger()
 
-func initLogger() *Logger {
+// inner log for bgo core
+var log = Log.WithField("prefix", "bgo")
+
+func initLogger() *logrus.Logger {
+	l := logrus.New()
+
+	l.SetFormatter(&tf.TextFormatter{
+		MultilineFields: []string{"schema", "stack"},
+		FullTimestamp:   true,
+	})
+
 	if os.Getenv("ENV") == "production" {
-		log.SetFormatter(&tf.TextFormatter{})
-		log.SetLevel(log.InfoLevel)
+		l.SetLevel(logrus.InfoLevel)
 	} else {
-		log.SetFormatter(&tf.TextFormatter{})
-		log.SetLevel(log.DebugLevel)
+		l.SetLevel(logrus.DebugLevel)
 	}
 
-	log.SetOutput(os.Stdout)
+	l.SetOutput(os.Stdout)
 
-	callerLevels := []log.Level{}
-	stackLevels := []log.Level{log.PanicLevel, log.FatalLevel, log.ErrorLevel}
+	callerLevels := []logrus.Level{}
+	stackLevels := []logrus.Level{logrus.PanicLevel, logrus.FatalLevel, logrus.ErrorLevel}
 	stackHook := stack.NewHook(callerLevels, stackLevels)
-	log.AddHook(stackHook)
+	l.AddHook(stackHook)
 
-	return &Logger{
-		log.StandardLogger(),
-	}
+	return l
 }
