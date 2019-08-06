@@ -16,7 +16,7 @@ func initConfig() map[string]interface{} {
 	var config map[string]interface{}
 
 	var file string
-	if os.Getenv("ENV") == "testing" {
+	if _, err := os.Stat("config_test.yml"); err == nil {
 		file = "config_test.yml"
 	} else {
 		file = "config.yml"
