@@ -18,7 +18,7 @@ func initLogger() *logrus.Logger {
 	l := logrus.New()
 
 	l.SetFormatter(&tf.TextFormatter{
-		MultilineFields: []string{"schema", "stack"},
+		MultilineFields: []string{"schema", "stack", "sql"},
 		FullTimestamp:   true,
 	})
 
