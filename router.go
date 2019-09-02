@@ -31,25 +31,23 @@ func New() *Router {
 
 // ListenAndServe is a shortcut for http.ListenAndServe
 func (r *Router) ListenAndServe() {
-	port := "8080"
-	if Config["port"] != nil {
-		switch p := Config["port"].(type) {
-		case int:
-			port = fmt.Sprintf("%d", p)
-		case string:
-			port = p
-		default:
-			log.Fatal("port must be int or string")
-		}
+	port := 8080
+
+	if Config.Get("port").Exists() {
+		port = int(Config.Get("port").Int())
 	}
 
-	log.WithField("port", port).Info("http.ListenAndServe")
-	log.Fatal(http.ListenAndServe(":"+port, r))
+	log.Info().Int("port", port).Msg("http.ListenAndServe")
+
+	err := http.ListenAndServe(":"+fmt.Sprintf("%d", port), r)
+	if err != nil {
+		log.Panic().Err(err).Send()
+	}
 }
 
 // Serve is a shortcut for http.Serve
 func (r *Router) Serve(l net.Listener) {
-	log.Fatal(http.Serve(l, r))
+	log.Panic().Err(http.Serve(l, r)).Send()
 }
 
 // Prefix append prefix
@@ -90,7 +88,7 @@ type HTTP struct {
 func (r *Router) Handle(method, path string, middlewaresAndHandle ...interface{}) *Router {
 	l := len(middlewaresAndHandle)
 	if l == 0 {
-		log.Panic("expect bgo.Handle")
+		log.Panic().Msg("expect bgo.Handle")
 	}
 
 	var handle Handle
@@ -103,14 +101,14 @@ func (r *Router) Handle(method, path string, middlewaresAndHandle ...interface{}
 			h.ServeHTTP(c.Response, c.Request)
 		}
 	default:
-		log.Panicf("expect bgo.Handle or http.Handler, but get %T", middlewaresAndHandle[l-1])
+		log.Panic().Msgf("expect bgo.Handle or http.Handler, but get %T", middlewaresAndHandle[l-1])
 	}
 
 	middlewares := r.middlewares
 	for i := 0; i < l-1; i++ {
 		middleware, ok := middlewaresAndHandle[i].(Middleware)
 		if !ok {
-			log.Panicf("expect bgo.Middleware, but get %T", middlewaresAndHandle[i])
+			log.Panic().Msgf("expect bgo.Middleware, but get %T", middlewaresAndHandle[i])
 		}
 		middlewares = append(middlewares, middleware)
 	}

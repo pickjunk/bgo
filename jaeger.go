@@ -10,19 +10,19 @@ import (
 type jaegerLogger struct{}
 
 func (l *jaegerLogger) Error(msg string) {
-	log.Error("jaeger: " + msg)
+	log.Error().Str("component", "bgo.jaeger").Msg(msg)
 }
 
 // Infof logs a message at info priority
 func (l *jaegerLogger) Infof(msg string, args ...interface{}) {
-	log.Debugf("jaeger: "+msg, args...)
+	log.Debug().Str("component", "bgo.jaeger").Msgf(msg, args...)
 }
 
 // Jaeger setup a jaeger tracer
 func Jaeger(cfg *config.Configuration) io.Closer {
 	tracer, closer, err := cfg.NewTracer(config.Logger(&jaegerLogger{}))
 	if err != nil {
-		log.Panic(err)
+		log.Panic().Err(err).Send()
 	}
 
 	opentracing.SetGlobalTracer(tracer)

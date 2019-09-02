@@ -4,50 +4,40 @@ import (
 	"io/ioutil"
 	"os"
 
-	sentry "github.com/onrik/logrus/sentry"
-	logrus "github.com/sirupsen/logrus"
-	yaml "gopkg.in/yaml.v2"
+	"github.com/ghodss/yaml"
+	"github.com/tidwall/gjson"
 )
 
 // Config data
 var Config = initConfig()
 
-func initConfig() map[string]interface{} {
-	var config map[string]interface{}
+func initConfig() *gjson.Result {
+	var config gjson.Result
 
-	var file string
-	if _, err := os.Stat("config_test.yml"); err == nil {
-		file = "config_test.yml"
-	} else {
-		file = "config.yml"
+	file := "config.yml"
+	if os.Getenv("ENV") != "production" {
+		if _, err := os.Stat("config_test.yml"); err == nil {
+			file = "config_test.yml"
+		}
 	}
 
 	c, err := os.Open(file)
 	if err != nil {
-		log.Warn(file + " not found")
-		return config
+		log.Warn().Str("file", file).Msg("config not found")
+		return &config
 	}
 
 	data, err := ioutil.ReadAll(c)
 	if err != nil {
-		log.Panic(file + " not found")
+		log.Panic().Err(err).Str("file", file).Msg("config read")
 	}
 
-	err = yaml.Unmarshal(data, &config)
+	json, err := yaml.YAMLToJSON(data)
 	if err != nil {
-		log.Panic(file + " parse error")
+		log.Panic().Err(err).Str("file", file).Msg("yaml to json")
 	}
 
-	// sentry
-	if sentryDSN, ok := config["sentry"].(string); ok {
-		sentryHook, err := sentry.NewHook(sentry.Options{
-			Dsn: sentryDSN,
-		}, logrus.ErrorLevel, logrus.PanicLevel, logrus.FatalLevel)
-		if err != nil {
-			log.Fatal(err)
-		}
-		Log.AddHook(sentryHook)
-	}
+	config = gjson.ParseBytes(json)
 
-	return config
+	return &config
 }

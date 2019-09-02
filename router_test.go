@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	log.Logger.SetOutput(ioutil.Discard)
+	log.Output(ioutil.Discard)
 }
 
 func TestMiddlewares(t *testing.T) {
