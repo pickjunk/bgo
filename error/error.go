@@ -1,6 +1,10 @@
-package bgo
+package error
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/rs/zerolog"
+)
 
 // BusinessError struct
 type BusinessError struct {
@@ -20,4 +24,14 @@ func Throw(code int, msg string) {
 		Code: code,
 		Msg:  msg,
 	})
+}
+
+// SystemError struct
+type SystemError struct {
+	Event *zerolog.Event
+	Err   error
+}
+
+func (e SystemError) Error() string {
+	return e.Err.Error()
 }

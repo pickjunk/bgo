@@ -11,6 +11,7 @@ import (
 
 	req "github.com/imroc/req"
 	b "github.com/pickjunk/bgo"
+	be "github.com/pickjunk/bgo/error"
 )
 
 type resolver struct{}
@@ -45,7 +46,7 @@ func (r *resolver) Test(
 	},
 ) *TestResolver {
 	if args.One != nil && *args.One == 1 {
-		b.Throw(100, "test error")
+		be.Throw(100, "test error")
 	}
 
 	h := ctx.Value(b.CtxKey("http")).(*b.HTTP)
@@ -123,7 +124,7 @@ func TestGraphql(t *testing.T) {
 		},
 	}
 	err = r.Fetch(&result)
-	_, ok := err.(*b.BusinessError)
+	_, ok := err.(*be.BusinessError)
 	if !ok {
 		t.Errorf("can not catch business error correctly")
 	}

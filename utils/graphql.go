@@ -7,7 +7,7 @@ import (
 	"os"
 
 	req "github.com/imroc/req"
-	b "github.com/pickjunk/bgo"
+	be "github.com/pickjunk/bgo/error"
 )
 
 // Graphql struct
@@ -59,12 +59,12 @@ func (g *Graphql) Fetch(result interface{}) error {
 		return err
 	}
 	if len(e.Errors) > 0 {
-		var be b.BusinessError
-		err = json.Unmarshal([]byte(e.Errors[0].Message), &be)
+		var bErr be.BusinessError
+		err = json.Unmarshal([]byte(e.Errors[0].Message), &bErr)
 		if err != nil {
 			return errors.New(e.Errors[0].Message)
 		}
-		return &be
+		return &bErr
 	}
 
 	err = res.ToJSON(result)

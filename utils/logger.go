@@ -1,7 +1,7 @@
 package utils
 
 import (
-	b "github.com/pickjunk/bgo"
+	bl "github.com/pickjunk/bgo/log"
 )
 
-var log = b.Log.WithField("prefix", "bgo.utils")
+var log = bl.New("bgo.utils")

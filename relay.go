@@ -3,13 +3,11 @@ package bgo
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"regexp"
 	"strings"
 
 	graphql "github.com/graph-gophers/graphql-go"
-	logrus "github.com/sirupsen/logrus"
 )
 
 // fork from github.com/graph-gophers/graphql-go/relay
@@ -29,11 +27,10 @@ func relay(ctx context.Context, schema *graphql.Schema) {
 		return
 	}
 
-	log.WithFields(logrus.Fields{
-		"schema":    params.Query,
-		"operation": params.OperationName,
-		"variables": fmt.Sprintf("%v", params.Variables),
-	}).Info("graphql.Exec")
+	log.Info().
+		Str("schema", params.Query).
+		Str("operation", params.OperationName).
+		Msg("graphql.Exec")
 	response := schema.Exec(ctx, params.Query, params.OperationName, params.Variables)
 
 	hasPanic := false

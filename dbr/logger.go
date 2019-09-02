@@ -4,65 +4,69 @@ import (
 	"time"
 
 	dbr "github.com/gocraft/dbr/opentracing"
-	b "github.com/pickjunk/bgo"
-	logrus "github.com/sirupsen/logrus"
+	be "github.com/pickjunk/bgo/error"
+	bl "github.com/pickjunk/bgo/log"
+	"github.com/rs/zerolog"
 )
 
 // Logger for dbr
 type Logger struct {
-	*logrus.Entry
+	*bl.Logger
 	*dbr.EventReceiver
 }
 
-// Log log dbr
 var log = &Logger{
-	b.Log.WithField("prefix", "dbr"),
+	bl.New("dbr"),
 	&dbr.EventReceiver{},
 }
 
 // ---------- implements dbr EventReceiver interface ----------
 // https://github.com/gocraft/dbr/blob/master/event.go
 
-func (l *Logger) kvs2Fields(kvs map[string]string) logrus.Fields {
-	fields := logrus.Fields{}
-	for k, v := range kvs {
-		fields[k] = v
-	}
-	return fields
-}
-
 // Event func
 func (l *Logger) Event(eventName string) {
-	l.Info(eventName)
+	l.Info().Msg(eventName)
 }
 
 // EventKv func
 func (l *Logger) EventKv(eventName string, kvs map[string]string) {
-	l.WithFields(l.kvs2Fields(kvs)).Info(eventName)
+	info := l.Info()
+	for k, v := range kvs {
+		info = info.Str(k, v)
+	}
+	info.Msg(eventName)
 }
 
 // EventErr func
 func (l *Logger) EventErr(eventName string, err error) error {
-	l.WithField("msg", err).Error(eventName)
-	return err
+	return &be.SystemError{
+		Event: l.Err(err).Str(zerolog.MessageFieldName, eventName),
+		Err:   err,
+	}
 }
 
 // EventErrKv func
 func (l *Logger) EventErrKv(eventName string, err error, kvs map[string]string) error {
-	fields := l.kvs2Fields(kvs)
-	fields["msg"] = err
-	l.WithFields(fields).Error(eventName)
-	return err
+	e := l.Err(err).Str(zerolog.MessageFieldName, eventName)
+	for k, v := range kvs {
+		e = e.Str(k, v)
+	}
+	return &be.SystemError{
+		Event: e,
+		Err:   err,
+	}
 }
 
 // Timing func
 func (l *Logger) Timing(eventName string, nanoseconds int64) {
-	l.WithField("duration", (time.Duration(nanoseconds) * time.Nanosecond).String()).Info(eventName)
+	l.Info().Dur("dur", time.Duration(nanoseconds)*time.Nanosecond).Msg(eventName)
 }
 
 // TimingKv func
 func (l *Logger) TimingKv(eventName string, nanoseconds int64, kvs map[string]string) {
-	fields := l.kvs2Fields(kvs)
-	fields["duration"] = (time.Duration(nanoseconds) * time.Nanosecond).String()
-	l.WithFields(fields).Info(eventName)
+	info := l.Info()
+	for k, v := range kvs {
+		info = info.Str(k, v)
+	}
+	info.Dur("dur", time.Duration(nanoseconds)*time.Nanosecond).Msg(eventName)
 }

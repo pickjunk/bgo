@@ -7,25 +7,24 @@ import (
 
 // Mail send mail in HTML format
 func Mail(to []string, title string, content string) error {
-	cfg, ok := b.Config["mail"].(map[string]interface{})
-	if !ok {
-		log.Panic("config [mail] not found")
+	if b.Config.Get("mail").Exists() {
+		log.Panic().Str("field", "mail").Msg("config field not found")
 	}
-	mailHost, ok := cfg["host"].(string)
-	if !ok {
-		log.Panic("config [mail.host] not found")
+	host := b.Config.Get("mail.host").String()
+	if host == "" {
+		log.Panic().Str("field", "mail.host").Msg("config field not found")
 	}
-	mailPort, ok := cfg["port"].(int)
-	if !ok {
-		log.Panic("config [mail.port] not found")
+	port := int(b.Config.Get("mail.port").Int())
+	if port == 0 {
+		log.Panic().Str("field", "mail.port").Msg("config field not found")
 	}
-	mailUser, ok := cfg["user"].(string)
-	if !ok {
-		log.Panic("config [mail.user] not found")
+	user := b.Config.Get("mail.user").String()
+	if user == "" {
+		log.Panic().Str("field", "mail.user").Msg("config field not found")
 	}
-	mailPasswd, ok := cfg["passwd"].(string)
-	if !ok {
-		log.Panic("config [mail.passwd] not found")
+	passwd := b.Config.Get("mail.passwd").String()
+	if passwd == "" {
+		log.Panic().Str("field", "mail.passwd").Msg("config field not found")
 	}
 
 	// filter empty
@@ -41,12 +40,12 @@ func Mail(to []string, title string, content string) error {
 	}
 
 	m := mail.NewMessage()
-	m.SetHeader("From", mailUser)
+	m.SetHeader("From", user)
 	m.SetHeader("To", list...)
 	m.SetHeader("Subject", title)
 	m.SetBody("text/html", content)
 
-	d := mail.NewDialer(mailHost, mailPort, mailUser, mailPasswd)
+	d := mail.NewDialer(host, port, user, passwd)
 	d.StartTLSPolicy = mail.MandatoryStartTLS
 
 	return d.DialAndSend(m)

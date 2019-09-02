@@ -4,7 +4,7 @@ import (
 	// mysql driver
 	_ "github.com/go-sql-driver/mysql"
 	dbr "github.com/gocraft/dbr"
-	bgo "github.com/pickjunk/bgo"
+	b "github.com/pickjunk/bgo"
 )
 
 // New dbr.Session
@@ -15,38 +15,32 @@ import (
 // mysql.maxOpenConns - max open connections for pool
 func New(optionalDSN ...string) *dbr.Session {
 	var dsn string
-	var maxIdleConns, maxOpenConns int
 
 	if len(optionalDSN) > 0 {
 		dsn = optionalDSN[0]
 	}
 
-	config, ok := bgo.Config["mysql"].(map[interface{}]interface{})
-	if !ok {
-		config = make(map[interface{}]interface{})
-	}
-
 	if dsn == "" {
-		dsn, ok = config["dsn"].(string)
-		if !ok {
-			log.Panic("config [mysql.dsn] not found")
+		dsn = b.Config.Get("mysql.dsn").String()
+		if dsn == "" {
+			log.Panic().Str("field", "mysql.dsn").Msg("config field not found")
 		}
 	}
 
 	// open connection
 	conn, err := dbr.Open("mysql", dsn, log)
 	if err != nil {
-		log.Panic(err)
+		log.Panic().Err(err).Send()
 	}
 
-	// connection pool config
-	maxIdleConns, ok = config["maxIdleConns"].(int)
-	if !ok {
+	maxIdleConns := int(b.Config.Get("mysql.maxIdleConns").Int())
+	if maxIdleConns == 0 {
 		maxIdleConns = 1
 	}
 	conn.DB.SetMaxIdleConns(maxIdleConns)
-	maxOpenConns, ok = config["maxOpenConns"].(int)
-	if !ok {
+
+	maxOpenConns := int(b.Config.Get("mysql.maxOpenConns").Int())
+	if maxOpenConns == 0 {
 		maxOpenConns = 1
 	}
 	conn.DB.SetMaxOpenConns(maxOpenConns)
@@ -54,14 +48,14 @@ func New(optionalDSN ...string) *dbr.Session {
 	// ping
 	err = conn.DB.Ping()
 	if err != nil {
-		log.Panic(err)
+		log.Panic().Err(err).Send()
 	}
 
-	log.
-		WithField("dsn", dsn).
-		WithField("maxIdleConns", maxIdleConns).
-		WithField("maxOpenConns", maxOpenConns).
-		Info("dbr.Open")
+	log.Info().
+		Str("dsn", dsn).
+		Int("maxIdleConns", maxIdleConns).
+		Int("maxOpenConns", maxOpenConns).
+		Msg("dbr open")
 
 	return conn.NewSession(nil)
 }
