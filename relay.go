@@ -13,9 +13,8 @@ import (
 // fork from github.com/graph-gophers/graphql-go/relay
 
 func relay(ctx context.Context, schema *graphql.Schema) {
-	h := ctx.Value(CtxKey("http")).(*HTTP)
-	w := h.Response
-	r := h.Request
+	w := Response(ctx)
+	r := Request(ctx)
 
 	var params struct {
 		Query         string                 `json:"query"`

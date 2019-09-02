@@ -12,8 +12,7 @@ import (
 
 func recoverMiddleware(ctx context.Context, next Handle) {
 	defer func() {
-		httpCtx := ctx.Value(CtxKey("http")).(*HTTP)
-		w := httpCtx.Response
+		w := Response(ctx)
 
 		if r := recover(); r != nil {
 			var err error

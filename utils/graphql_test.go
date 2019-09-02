@@ -49,9 +49,8 @@ func (r *resolver) Test(
 		be.Throw(100, "test error")
 	}
 
-	h := ctx.Value(b.CtxKey("http")).(*b.HTTP)
-	w := h.Response
-	hr := h.Request
+	w := b.Response(ctx)
+	hr := b.Request(ctx)
 
 	auth := hr.Header.Get("Authorization")
 	m := regexp.MustCompile(`^Bearer (.*)`).FindStringSubmatch(auth)
