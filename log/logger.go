@@ -14,12 +14,22 @@ type Logger struct {
 	zerolog.Logger
 }
 
-// LogError override zerolog.Err to handle SystemError
-func (l *Logger) LogError(err error) *zerolog.Event {
+// Event a custom event for bgo, base on zerolog
+type Event struct {
+	*zerolog.Event
+}
+
+// Panic custom panic to return a custom event
+func (l *Logger) Panic() *Event {
+	return &Event{l.Logger.Panic()}
+}
+
+// Err custom error to handle SystemError
+func (l *Event) Err(err error) *zerolog.Event {
 	event := l.Err(err)
 
 	if e, ok := err.(*be.SystemError); ok {
-		event = event.Dict("sys_err", e.Event)
+		event = event.Dict("inner", e.Event)
 	}
 
 	return event
