@@ -30,16 +30,15 @@ func (w *statusWriter) Write(b []byte) (int, error) {
 }
 
 func logMiddleware(ctx context.Context, next Handle) {
-	httpCtx := ctx.Value(CtxKey("http")).(*HTTP)
-	w := httpCtx.Response
-	r := httpCtx.Request
-	ps := httpCtx.Params
+	w := Response(ctx)
+	r := Request(ctx)
+	ps := Params(ctx)
 
 	span, ctx := ot.StartSpanFromContext(ctx, "http.handle")
 	defer span.Finish()
 
 	sw := &statusWriter{ResponseWriter: w, status: http.StatusOK}
-	ctx = context.WithValue(ctx, CtxKey("http"), &HTTP{sw, r, ps})
+	ctx = withValue(ctx, "http", &HTTP{sw, r, ps})
 
 	start := time.Now()
 	next(ctx)

@@ -77,13 +77,6 @@ type Handle = func(context.Context)
 // Middleware func
 type Middleware = func(context.Context, Handle)
 
-// HTTP context
-type HTTP struct {
-	Response http.ResponseWriter
-	Request  *http.Request
-	Params   httprouter.Params
-}
-
 // Handle define a route
 func (r *Router) Handle(method, path string, middlewaresAndHandle ...interface{}) *Router {
 	l := len(middlewaresAndHandle)
@@ -97,8 +90,7 @@ func (r *Router) Handle(method, path string, middlewaresAndHandle ...interface{}
 		handle = h
 	case http.Handler:
 		handle = func(ctx context.Context) {
-			c := ctx.Value(CtxKey("http")).(*HTTP)
-			h.ServeHTTP(c.Response, c.Request)
+			h.ServeHTTP(Response(ctx), Request(ctx))
 		}
 	default:
 		log.Panic().Msgf("expect bgo.Handle or http.Handler, but get %T", middlewaresAndHandle[l-1])
@@ -125,8 +117,7 @@ func (r *Router) Handle(method, path string, middlewaresAndHandle ...interface{}
 	// wrap it as httprouter.Handle
 	// attach response, request, params to context
 	hrHandle := func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-		ctx := r.Context()
-		ctx = context.WithValue(ctx, CtxKey("http"), &HTTP{w, r, ps})
+		ctx := withValue(r.Context(), "http", &HTTP{w, r, ps})
 		handle(ctx)
 	}
 

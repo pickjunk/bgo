@@ -30,9 +30,7 @@ func (r *Router) Swagger(swaggerJSONData []byte) *Router {
 	r.ServeFiles("/swaggerui/*filepath", fs)
 
 	r.GET("/swagger.json", func(ctx context.Context) {
-		h := ctx.Value(CtxKey("http")).(*HTTP)
-		w := h.Response
-		w.Write(swaggerJSONData)
+		Response(ctx).Write(swaggerJSONData)
 	})
 	return r
 }
