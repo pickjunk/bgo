@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"errors"
 	"io"
 	"net/http"
 	"os"
@@ -8,6 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/imroc/req"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -29,7 +31,7 @@ func SaveImage(file File, scale string, path string) (string, error) {
 	case "image/png":
 		ext = ".png"
 	default:
-		panic("illegal file type")
+		return "", errors.New("illegal image type")
 	}
 
 	// uuid
@@ -62,6 +64,34 @@ func SaveImage(file File, scale string, path string) (string, error) {
 		targetPath,
 	)
 	_, err = cmd.CombinedOutput()
+	if err != nil {
+		return "", err
+	}
+
+	return targetName, nil
+}
+
+// DownloadImage download image with a specific scale, depend on ffmpeg
+func DownloadImage(url string, scale string, path string) (string, error) {
+	uuidStr := uuid.Must(uuid.NewV4(), nil).String()
+	tmpFile := path + uuidStr
+
+	ri, err := req.Get(url)
+	if err != nil {
+		return "", err
+	}
+	if ri.Response().StatusCode != 200 {
+		return "", errors.New("image download error")
+	}
+	ri.ToFile(tmpFile)
+	defer os.Remove(tmpFile)
+
+	file, err := os.Open(tmpFile)
+	if err != nil {
+		return "", err
+	}
+
+	targetName, err := SaveImage(file, scale, path)
 	if err != nil {
 		return "", err
 	}
