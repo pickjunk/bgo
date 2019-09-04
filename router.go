@@ -34,8 +34,8 @@ func New() *Router {
 func (r *Router) ListenAndServe() {
 	port := 8080
 
-	if bc.Config.Get("port").Exists() {
-		port = int(bc.Config.Get("port").Int())
+	if bc.Get("port").Exists() {
+		port = int(bc.Get("port").Int())
 	}
 
 	log.Info().Int("port", port).Msg("http.ListenAndServe")

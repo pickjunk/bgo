@@ -51,19 +51,19 @@ func (l *Event) Err(err error) *zerolog.Event {
 func New(component string) *Logger {
 	l := zlog.With().Caller().Str("component", component).Logger()
 
-	logPath := bc.Config.Get("log.path").String()
-	if os.Getenv("ENV") == "production" && logPath != "" {
+	logPath := bc.Get("log.path").String()
+	if logPath != "" {
 		zerolog.SetGlobalLevel(zerolog.InfoLevel)
 
-		maxSize := bc.Config.Get("log.maxSize").Uint()
+		maxSize := bc.Get("log.maxSize").Uint()
 		if maxSize == 0 {
 			maxSize = 10
 		}
-		maxBackups := bc.Config.Get("log.maxBackups").Uint()
+		maxBackups := bc.Get("log.maxBackups").Uint()
 		if maxBackups == 0 {
 			maxBackups = 10
 		}
-		maxAge := bc.Config.Get("log.maxAge").Uint()
+		maxAge := bc.Get("log.maxAge").Uint()
 		if maxSize == 0 {
 			maxAge = 20
 		}

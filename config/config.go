@@ -10,8 +10,7 @@ import (
 	"github.com/tidwall/gjson"
 )
 
-// Config data
-var Config = initConfig()
+var config = initConfig()
 
 func initConfig() *gjson.Result {
 	// do not depend on bgo/log here, just new a standalone logger for config
@@ -49,4 +48,9 @@ func initConfig() *gjson.Result {
 	log.Info().Str("file", file).Msg("config loaded")
 
 	return &config
+}
+
+// Get config by path
+func Get(path string) gjson.Result {
+	return config.Get(path)
 }
