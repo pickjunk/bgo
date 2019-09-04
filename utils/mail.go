@@ -7,22 +7,22 @@ import (
 
 // Mail send mail in HTML format
 func Mail(to []string, title string, content string) error {
-	if bc.Config.Get("mail").Exists() {
+	if bc.Get("mail").Exists() {
 		log.Panic().Str("field", "mail").Msg("config field not found")
 	}
-	host := bc.Config.Get("mail.host").String()
+	host := bc.Get("mail.host").String()
 	if host == "" {
 		log.Panic().Str("field", "mail.host").Msg("config field not found")
 	}
-	port := int(bc.Config.Get("mail.port").Int())
+	port := int(bc.Get("mail.port").Int())
 	if port == 0 {
 		log.Panic().Str("field", "mail.port").Msg("config field not found")
 	}
-	user := bc.Config.Get("mail.user").String()
+	user := bc.Get("mail.user").String()
 	if user == "" {
 		log.Panic().Str("field", "mail.user").Msg("config field not found")
 	}
-	passwd := bc.Config.Get("mail.passwd").String()
+	passwd := bc.Get("mail.passwd").String()
 	if passwd == "" {
 		log.Panic().Str("field", "mail.passwd").Msg("config field not found")
 	}
