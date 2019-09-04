@@ -26,7 +26,7 @@ func (l *Logger) Panic() *Event {
 
 // Err custom Logger.Err to handle SystemError
 func (l *Logger) Err(err error) *zerolog.Event {
-	event := l.Err(err)
+	event := l.Logger.Err(err)
 
 	if e, ok := err.(*be.SystemError); ok {
 		event = event.Dict("inner", e.Event)
@@ -37,7 +37,7 @@ func (l *Logger) Err(err error) *zerolog.Event {
 
 // Err custom Event.Err to handle SystemError
 func (l *Event) Err(err error) *zerolog.Event {
-	event := l.Err(err)
+	event := l.Event.Err(err)
 
 	if e, ok := err.(*be.SystemError); ok {
 		event = event.Dict("inner", e.Event)
