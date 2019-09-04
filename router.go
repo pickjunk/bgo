@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	httprouter "github.com/julienschmidt/httprouter"
+	bc "github.com/pickjunk/bgo/config"
 	cors "github.com/rs/cors"
 )
 
@@ -33,8 +34,8 @@ func New() *Router {
 func (r *Router) ListenAndServe() {
 	port := 8080
 
-	if Config.Get("port").Exists() {
-		port = int(Config.Get("port").Int())
+	if bc.Config.Get("port").Exists() {
+		port = int(bc.Config.Get("port").Int())
 	}
 
 	log.Info().Int("port", port).Msg("http.ListenAndServe")

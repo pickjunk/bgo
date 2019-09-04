@@ -1,10 +1,12 @@
-package bgo
+package config
 
 import (
 	"io/ioutil"
 	"os"
 
 	"github.com/ghodss/yaml"
+	"github.com/rs/zerolog"
+	zlog "github.com/rs/zerolog/log"
 	"github.com/tidwall/gjson"
 )
 
@@ -12,6 +14,11 @@ import (
 var Config = initConfig()
 
 func initConfig() *gjson.Result {
+	// do not depend on bgo/log here, just new a standalone logger for config
+	// to prevent circular dependency
+	log := zlog.With().Str("component", "bgo.config").Logger()
+	log = log.Output(zerolog.ConsoleWriter{Out: os.Stdout})
+
 	var config gjson.Result
 
 	file := "config.yml"
@@ -38,6 +45,8 @@ func initConfig() *gjson.Result {
 	}
 
 	config = gjson.ParseBytes(json)
+
+	log.Info().Str("file", file).Msg("config loaded")
 
 	return &config
 }
