@@ -3,6 +3,7 @@ package bgo
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"regexp"
 	"strings"
@@ -26,10 +27,17 @@ func relay(ctx context.Context, schema *graphql.Schema) {
 		return
 	}
 
+	schemaStr := strings.Replace(strings.Replace(params.Query, "\n", " ", -1), "\t", " ", -1)
+	varStr := fmt.Sprintf("%v", params.Variables)
+	if len(varStr) > 500 {
+		varStr = "[too long, hidden]"
+	}
 	log.Info().
-		Str("schema", params.Query).
+		Str("schema", schemaStr).
 		Str("operation", params.OperationName).
+		Str("variables", varStr).
 		Msg("graphql.Exec")
+
 	response := schema.Exec(ctx, params.Query, params.OperationName, params.Variables)
 
 	hasPanic := false
