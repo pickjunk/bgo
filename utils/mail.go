@@ -2,27 +2,27 @@ package utils
 
 import (
 	mail "github.com/go-mail/mail"
-	b "github.com/pickjunk/bgo"
+	bc "github.com/pickjunk/bgo/config"
 )
 
 // Mail send mail in HTML format
 func Mail(to []string, title string, content string) error {
-	if b.Config.Get("mail").Exists() {
+	if bc.Config.Get("mail").Exists() {
 		log.Panic().Str("field", "mail").Msg("config field not found")
 	}
-	host := b.Config.Get("mail.host").String()
+	host := bc.Config.Get("mail.host").String()
 	if host == "" {
 		log.Panic().Str("field", "mail.host").Msg("config field not found")
 	}
-	port := int(b.Config.Get("mail.port").Int())
+	port := int(bc.Config.Get("mail.port").Int())
 	if port == 0 {
 		log.Panic().Str("field", "mail.port").Msg("config field not found")
 	}
-	user := b.Config.Get("mail.user").String()
+	user := bc.Config.Get("mail.user").String()
 	if user == "" {
 		log.Panic().Str("field", "mail.user").Msg("config field not found")
 	}
-	passwd := b.Config.Get("mail.passwd").String()
+	passwd := bc.Config.Get("mail.passwd").String()
 	if passwd == "" {
 		log.Panic().Str("field", "mail.passwd").Msg("config field not found")
 	}

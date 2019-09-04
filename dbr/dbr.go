@@ -4,7 +4,7 @@ import (
 	// mysql driver
 	_ "github.com/go-sql-driver/mysql"
 	dbr "github.com/gocraft/dbr"
-	b "github.com/pickjunk/bgo"
+	bc "github.com/pickjunk/bgo/config"
 )
 
 // New dbr.Session
@@ -21,7 +21,7 @@ func New(optionalDSN ...string) *dbr.Session {
 	}
 
 	if dsn == "" {
-		dsn = b.Config.Get("mysql.dsn").String()
+		dsn = bc.Config.Get("mysql.dsn").String()
 		if dsn == "" {
 			log.Panic().Str("field", "mysql.dsn").Msg("config field not found")
 		}
@@ -33,13 +33,13 @@ func New(optionalDSN ...string) *dbr.Session {
 		log.Panic().Err(err).Send()
 	}
 
-	maxIdleConns := int(b.Config.Get("mysql.maxIdleConns").Int())
+	maxIdleConns := int(bc.Config.Get("mysql.maxIdleConns").Int())
 	if maxIdleConns == 0 {
 		maxIdleConns = 1
 	}
 	conn.DB.SetMaxIdleConns(maxIdleConns)
 
-	maxOpenConns := int(b.Config.Get("mysql.maxOpenConns").Int())
+	maxOpenConns := int(bc.Config.Get("mysql.maxOpenConns").Int())
 	if maxOpenConns == 0 {
 		maxOpenConns = 1
 	}

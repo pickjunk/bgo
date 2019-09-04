@@ -3,6 +3,7 @@ package log
 import (
 	"os"
 
+	bc "github.com/pickjunk/bgo/config"
 	be "github.com/pickjunk/bgo/error"
 	"github.com/rs/zerolog"
 	zlog "github.com/rs/zerolog/log"
@@ -50,13 +51,27 @@ func (l *Event) Err(err error) *zerolog.Event {
 func New(component string) *Logger {
 	l := zlog.With().Caller().Str("component", component).Logger()
 
-	if os.Getenv("ENV") == "production" {
+	logPath := bc.Config.Get("log.path").String()
+	if os.Getenv("ENV") == "production" && logPath != "" {
 		zerolog.SetGlobalLevel(zerolog.InfoLevel)
+
+		maxSize := bc.Config.Get("log.maxSize").Uint()
+		if maxSize == 0 {
+			maxSize = 10
+		}
+		maxBackups := bc.Config.Get("log.maxBackups").Uint()
+		if maxBackups == 0 {
+			maxBackups = 10
+		}
+		maxAge := bc.Config.Get("log.maxAge").Uint()
+		if maxSize == 0 {
+			maxAge = 20
+		}
 		l = l.Output(&lumberjack.Logger{
-			Filename:   "runtime/log/app.log",
-			MaxSize:    10, // megabytes
-			MaxBackups: 10,
-			MaxAge:     20, //days
+			Filename:   logPath,
+			MaxSize:    int(maxSize), // megabytes
+			MaxBackups: int(maxBackups),
+			MaxAge:     int(maxAge), //days
 		})
 	} else {
 		zerolog.SetGlobalLevel(zerolog.DebugLevel)
