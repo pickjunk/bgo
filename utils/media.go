@@ -83,8 +83,11 @@ func DownloadImage(url string, scale string, path string) (string, error) {
 	if ri.Response().StatusCode != 200 {
 		return "", errors.New("image download error")
 	}
-	ri.ToFile(tmpFile)
 	defer os.Remove(tmpFile)
+	err = ri.ToFile(tmpFile)
+	if err != nil {
+		return "", err
+	}
 
 	file, err := os.Open(tmpFile)
 	if err != nil {
