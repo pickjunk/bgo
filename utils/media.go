@@ -93,6 +93,7 @@ func DownloadImage(url string, scale string, path string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	defer file.Close()
 
 	targetName, err := SaveImage(file, scale, path)
 	if err != nil {
