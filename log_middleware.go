@@ -9,6 +9,7 @@ import (
 
 	ot "github.com/opentracing/opentracing-go"
 	otext "github.com/opentracing/opentracing-go/ext"
+	bl "github.com/pickjunk/bgo/log"
 )
 
 // https://www.reddit.com/r/golang/comments/7p35s4/how_do_i_get_the_response_status_for_my_middleware/
@@ -29,29 +30,7 @@ func (w *statusWriter) Write(b []byte) (int, error) {
 	return n, err
 }
 
-func logMiddleware(ctx context.Context, next Handle) {
-	w := Response(ctx)
-	r := Request(ctx)
-	ps := Params(ctx)
-
-	span, ctx := ot.StartSpanFromContext(ctx, "http.handle")
-	defer span.Finish()
-
-	sw := &statusWriter{ResponseWriter: w, status: http.StatusOK}
-	ctx = withValue(ctx, "http", &HTTP{sw, r, ps})
-
-	start := time.Now()
-	next(ctx)
-	duration := time.Now().Sub(start)
-
-	otext.HTTPMethod.Set(span, r.Method)
-	otext.HTTPUrl.Set(span, r.RequestURI)
-	otext.HTTPStatusCode.Set(span, uint16(sw.status))
-
-	if sw.status >= http.StatusInternalServerError {
-		otext.Error.Set(span, true)
-	}
-
+func ip(r *http.Request) string {
 	// client ip
 	ip := r.RemoteAddr
 	xff := r.Header.Get("X-Forwarded-For")
@@ -59,27 +38,53 @@ func logMiddleware(ctx context.Context, next Handle) {
 		ip = xff
 	}
 	// clear port
-	re := regexp.MustCompile(`\:\d+$`)
-	ip = re.ReplaceAllString(ip, "")
+	ip = regexp.MustCompile(`\:\d+$`).ReplaceAllString(ip, "")
+	return ip
+}
 
+func logMiddleware(ctx context.Context, next Handle) {
+	w := Response(ctx)
+	r := Request(ctx)
+	ps := Params(ctx)
+
+	l := log.With().
+		Str("method", r.Method).
+		Str("uri", r.RequestURI).
+		Logger()
 	if os.Getenv("ENV") == "production" {
-		log.Info().
-			Str("ip", ip).
+		l = l.With().
+			Str("ip", ip(r)).
 			Str("host", r.Host).
-			Str("method", r.Method).
-			Str("uri", r.RequestURI).
-			Int("status", sw.status).
-			Int("length", sw.length).
 			Str("ua", r.Header.Get("User-Agent")).
 			Str("referer", r.Header.Get("Referer")).
-			Dur("duration", duration).
-			Msg("http handle")
-	} else {
-		log.Info().
-			Str("method", r.Method).
-			Str("uri", r.RequestURI).
-			Int("status", sw.status).
-			Dur("duration", duration).
-			Msg("http.handle")
+			Logger()
 	}
+	ctx = withValue(ctx, "log", &bl.Logger{Logger: l})
+
+	sw := &statusWriter{ResponseWriter: w, status: http.StatusOK}
+	ctx = withValue(ctx, "http", &HTTP{sw, r, ps})
+
+	span, ctx := ot.StartSpanFromContext(ctx, "http")
+	defer span.Finish()
+	start := time.Now()
+	next(ctx)
+	duration := time.Now().Sub(start)
+
+	otext.HTTPMethod.Set(span, r.Method)
+	otext.HTTPUrl.Set(span, r.RequestURI)
+	otext.HTTPStatusCode.Set(span, uint16(sw.status))
+	if sw.status >= http.StatusInternalServerError {
+		otext.Error.Set(span, true)
+	}
+
+	l.Info().
+		Int("status", sw.status).
+		Int("length", sw.length).
+		Dur("duration", duration).
+		Msg("http")
+}
+
+// Log get contextual logger
+func Log(ctx context.Context) *bl.Logger {
+	return value(ctx, "log").(*bl.Logger)
 }
