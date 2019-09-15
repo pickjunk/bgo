@@ -13,6 +13,21 @@ import (
 
 // fork from github.com/graph-gophers/graphql-go/relay
 
+func formatSchema(schema string) string {
+	r := strings.Replace(schema, "\n", " ", -1)
+	r = strings.Replace(r, "\t", " ", -1)
+	r = regexp.MustCompile(`\s+`).ReplaceAllString(r, " ")
+	return r
+}
+
+func formatVariables(vars map[string]interface{}) string {
+	r := fmt.Sprintf("%v", vars)
+	if len(r) > 200 {
+		r = r[:200] + "..."
+	}
+	return r
+}
+
 func relay(ctx context.Context, schema *graphql.Schema) {
 	w := Response(ctx)
 	r := Request(ctx)
@@ -27,20 +42,10 @@ func relay(ctx context.Context, schema *graphql.Schema) {
 		return
 	}
 
-	schemaStr := strings.Replace(strings.Replace(params.Query, "\n", " ", -1), "\t", " ", -1)
-	varStr := fmt.Sprintf("%v", params.Variables)
-	if len(varStr) > 500 {
-		varStr = "[too long, hidden]"
-	}
-	log.Info().
-		Str("schema", schemaStr).
-		Str("operation", params.OperationName).
-		Str("variables", varStr).
-		Msg("graphql.Exec")
-
 	response := schema.Exec(ctx, params.Query, params.OperationName, params.Variables)
 
 	hasPanic := false
+	status := http.StatusOK
 
 	// https://github.com/graph-gophers/graphql-go/pull/207
 	if response.Errors != nil {
@@ -65,14 +70,21 @@ func relay(ctx context.Context, schema *graphql.Schema) {
 
 	responseJSON, err := json.Marshal(response)
 	if err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
+		log.Panic().Err(err).Send()
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	if hasPanic {
+		status = http.StatusInternalServerError
 		http.Error(w, string(responseJSON), http.StatusInternalServerError)
 	} else {
 		w.Write(responseJSON)
 	}
+
+	Log(ctx).Info().
+		Str("schema", formatSchema(params.Query)).
+		Str("operation", params.OperationName).
+		Str("variables", formatVariables(params.Variables)).
+		Int("status", status).
+		Msg("graphql")
 }
