@@ -16,6 +16,7 @@ import (
 func formatSchema(schema string) string {
 	r := strings.Replace(schema, "\n", " ", -1)
 	r = strings.Replace(r, "\t", " ", -1)
+	r = strings.Trim(r, " ")
 	r = regexp.MustCompile(`\s+`).ReplaceAllString(r, " ")
 	return r
 }
