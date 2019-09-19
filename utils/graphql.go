@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -20,13 +21,13 @@ type Graphql struct {
 }
 
 // Fetch execute a graphql api
-func (g *Graphql) Fetch(result interface{}) error {
+func (g *Graphql) Fetch(ctx context.Context, result interface{}) error {
 	if os.Getenv("ENV") != "production" {
 		req.Debug = true
+		defer func() {
+			req.Debug = false
+		}()
 	}
-	defer func() {
-		req.Debug = false
-	}()
 
 	r := req.New()
 
@@ -39,7 +40,7 @@ func (g *Graphql) Fetch(result interface{}) error {
 	if g.Variables != nil {
 		params["operation"] = g.Operation
 	}
-	res, err := r.Post(g.URL, g.Headers, req.BodyJSON(params))
+	res, err := r.Post(g.URL, g.Headers, req.BodyJSON(params), ctx)
 	if err != nil {
 		return err
 	}

@@ -101,7 +101,7 @@ func TestGraphql(t *testing.T) {
 		}
 		`,
 	}
-	err := r.Fetch(&result)
+	err := r.Fetch(context.Background(), &result)
 	if err == nil || err.Error() != "http status error: 401" {
 		t.Errorf("can not catch http status error correctly")
 	}
@@ -122,7 +122,7 @@ func TestGraphql(t *testing.T) {
 			"Authorization": "Bearer 123",
 		},
 	}
-	err = r.Fetch(&result)
+	err = r.Fetch(context.Background(), &result)
 	_, ok := err.(*be.BusinessError)
 	if !ok {
 		t.Errorf("can not catch business error correctly")
@@ -141,7 +141,7 @@ func TestGraphql(t *testing.T) {
 			"Authorization": "Bearer 123",
 		},
 	}
-	err = r.Fetch(&result)
+	err = r.Fetch(context.Background(), &result)
 	if err != nil {
 		t.Errorf("can not fetch correctly")
 	}
