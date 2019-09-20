@@ -49,7 +49,7 @@ func (l *Event) Err(err error) *zerolog.Event {
 
 // New a logger
 func New(component string) *Logger {
-	l := zlog.With().Caller().Str("component", component).Logger()
+	l := zlog.With().Str("component", component).Logger()
 
 	logPath := bc.Get("log.path").String()
 	if logPath != "" {
@@ -77,6 +77,8 @@ func New(component string) *Logger {
 		zerolog.SetGlobalLevel(zerolog.DebugLevel)
 		l = l.Output(zerolog.ConsoleWriter{Out: os.Stdout})
 	}
+
+	l = l.Hook(callerHook{})
 
 	return &Logger{l}
 }
