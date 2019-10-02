@@ -9,7 +9,7 @@ import (
 
 	ot "github.com/opentracing/opentracing-go"
 	otext "github.com/opentracing/opentracing-go/ext"
-	bl "github.com/pickjunk/bgo/log"
+	"github.com/rs/zerolog"
 )
 
 // https://www.reddit.com/r/golang/comments/7p35s4/how_do_i_get_the_response_status_for_my_middleware/
@@ -47,19 +47,16 @@ func logMiddleware(ctx context.Context, next Handle) {
 	r := Request(ctx)
 	ps := Params(ctx)
 
-	l := log.With().
-		Str("method", r.Method).
-		Str("uri", r.RequestURI).
-		Logger()
+	access := make(map[string]string)
+	access["method"] = r.Method
+	access["uri"] = r.RequestURI
 	if os.Getenv("ENV") == "production" {
-		l = l.With().
-			Str("ip", ip(r)).
-			Str("host", r.Host).
-			Str("ua", r.Header.Get("User-Agent")).
-			Str("referer", r.Header.Get("Referer")).
-			Logger()
+		access["ip"] = ip(r)
+		access["host"] = r.Host
+		access["ua"] = r.Header.Get("User-Agent")
+		access["referer"] = r.Header.Get("Referer")
 	}
-	ctx = withValue(ctx, "log", &bl.Logger{Logger: l})
+	ctx = withValue(ctx, "access", access)
 
 	sw := &statusWriter{ResponseWriter: w, status: http.StatusOK}
 	ctx = withValue(ctx, "http", &HTTP{sw, r, ps})
@@ -77,14 +74,26 @@ func logMiddleware(ctx context.Context, next Handle) {
 		otext.Error.Set(span, true)
 	}
 
-	l.Info().
-		Int("status", sw.status).
+	var e *zerolog.Event
+	switch s := sw.status; {
+	case s >= 200 && s < 300:
+		e = log.Info()
+	case s >= 300 && s < 500:
+		e = log.Warn()
+	default:
+		e = log.Error()
+	}
+	for k, v := range access {
+		e.Str(k, v)
+	}
+	e.Int("status", sw.status).
 		Int("length", sw.length).
 		Dur("duration", duration).
-		Msg("http")
+		Msg("access")
 }
 
-// Log get contextual logger
-func Log(ctx context.Context) *bl.Logger {
-	return value(ctx, "log").(*bl.Logger)
+// Access context, everything added to this map
+// will be logged as the field of access log
+func Access(ctx context.Context) map[string]string {
+	return value(ctx, "access").(map[string]string)
 }
