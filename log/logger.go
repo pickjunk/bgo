@@ -54,6 +54,7 @@ func New(component string) *Logger {
 	logPath := bc.Get("log.path").String()
 	if logPath != "" {
 		zerolog.SetGlobalLevel(zerolog.InfoLevel)
+		zerolog.TimeFieldFormat = zerolog.TimeFormatUnixMs
 
 		maxSize := bc.Get("log.maxSize").Uint()
 		if maxSize == 0 {
