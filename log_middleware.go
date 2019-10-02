@@ -49,7 +49,7 @@ func logMiddleware(ctx context.Context, next Handle) {
 
 	access := make(map[string]string)
 	access["method"] = r.Method
-	access["uri"] = r.RequestURI
+	access["path"] = r.URL.Path
 	if os.Getenv("ENV") == "production" {
 		access["ip"] = ip(r)
 		access["host"] = r.Host
