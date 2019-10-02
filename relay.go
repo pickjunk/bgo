@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
+	"time"
 
 	graphql "github.com/graph-gophers/graphql-go"
 )
@@ -43,7 +44,9 @@ func relay(ctx context.Context, schema *graphql.Schema) {
 		return
 	}
 
+	start := time.Now()
 	response := schema.Exec(ctx, params.Query, params.OperationName, params.Variables)
+	duration := time.Now().Sub(start)
 
 	hasPanic := false
 	status := http.StatusOK
@@ -87,5 +90,6 @@ func relay(ctx context.Context, schema *graphql.Schema) {
 		Str("operation", params.OperationName).
 		Str("variables", formatVariables(params.Variables)).
 		Int("status", status).
+		Dur("duration", duration).
 		Msg("graphql")
 }
