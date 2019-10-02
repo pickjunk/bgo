@@ -59,7 +59,7 @@ func (l *Logger) EventErrKv(eventName string, err error, kvs map[string]string) 
 
 // Timing func
 func (l *Logger) Timing(eventName string, nanoseconds int64) {
-	l.Info().Dur("dur", time.Duration(nanoseconds)*time.Nanosecond).Msg(eventName)
+	l.Info().Dur("duration", time.Duration(nanoseconds)*time.Nanosecond).Msg(eventName)
 }
 
 // TimingKv func
@@ -68,5 +68,5 @@ func (l *Logger) TimingKv(eventName string, nanoseconds int64, kvs map[string]st
 	for k, v := range kvs {
 		info = info.Str(k, v)
 	}
-	info.Dur("dur", time.Duration(nanoseconds)*time.Nanosecond).Msg(eventName)
+	info.Dur("duration", time.Duration(nanoseconds)*time.Nanosecond).Msg(eventName)
 }
