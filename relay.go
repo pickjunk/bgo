@@ -3,7 +3,6 @@ package bgo
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"regexp"
 	"strings"
@@ -18,14 +17,6 @@ func formatSchema(schema string) string {
 	r = strings.Replace(r, "\t", " ", -1)
 	r = strings.Trim(r, " ")
 	r = regexp.MustCompile(`\s+`).ReplaceAllString(r, " ")
-	return r
-}
-
-func formatVariables(vars map[string]interface{}) string {
-	r := fmt.Sprintf("%v", vars)
-	if len(r) > 200 {
-		r = r[:200] + "..."
-	}
 	return r
 }
 
@@ -45,8 +36,9 @@ func relay(ctx context.Context, schema *graphql.Schema) {
 
 	access := Access(ctx)
 	access["schema"] = formatSchema(params.Query)
-	access["operation"] = params.OperationName
-	access["variables"] = formatVariables(params.Variables)
+	if params.OperationName != "" {
+		access["operation"] = params.OperationName
+	}
 
 	response := schema.Exec(ctx, params.Query, params.OperationName, params.Variables)
 
