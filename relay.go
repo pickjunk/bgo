@@ -6,6 +6,9 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
+	"crypto/md5"
+	"os"
+	"fmt"
 
 	graphql "github.com/graph-gophers/graphql-go"
 )
@@ -36,6 +39,9 @@ func relay(ctx context.Context, schema *graphql.Schema) {
 
 	access := Access(ctx)
 	access["schema"] = formatSchema(params.Query)
+	if os.Getenv("ENV") == "production" {
+		access["schema_hash"] = fmt.Sprintf("%x", md5.Sum([]byte(access["schema"])))
+	}
 	if params.OperationName != "" {
 		access["operation"] = params.OperationName
 	}
