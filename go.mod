@@ -1,13 +1,11 @@
 module github.com/pickjunk/bgo
 
 require (
-	github.com/360EntSecGroup-Skylar/excelize v1.4.1 // indirect
 	github.com/BurntSushi/toml v0.3.1 // indirect
 	github.com/DATA-DOG/go-sqlmock v1.3.2 // indirect
 	github.com/codahale/hdrhistogram v0.0.0-20161010025455-3a0bb77429bd // indirect
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
+	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/elazarl/go-bindata-assetfs v1.0.0
-	github.com/fatih/structs v1.1.0 // indirect
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-mail/mail v2.3.1+incompatible
 	github.com/go-sql-driver/mysql v1.4.1
@@ -18,8 +16,8 @@ require (
 	github.com/julienschmidt/httprouter v1.2.0
 	github.com/mattn/go-sqlite3 v1.10.0 // indirect
 	github.com/opentracing/opentracing-go v1.0.2
+	github.com/pickjunk/zerolog v1.15.2
 	github.com/rs/cors v1.6.0
-	github.com/rs/zerolog v1.15.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/stretchr/testify v1.3.0
 	github.com/tidwall/gjson v1.3.2

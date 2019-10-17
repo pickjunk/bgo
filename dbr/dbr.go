@@ -59,3 +59,36 @@ func New(optionalDSN ...string) *dbr.Session {
 
 	return conn.NewSession(nil)
 }
+
+// export dbr expression function for convenience
+var (
+	// And creates AND from a list of conditions.
+	And = dbr.And
+	// Or creates OR from a list of conditions.
+	Or = dbr.Or
+	// Eq is `=`.
+	// When value is nil, it will be translated to `IS NULL`.
+	// When value is a slice, it will be translated to `IN`.
+	// Otherwise it will be translated to `=`.
+	Eq = dbr.Eq
+	// Neq is `!=`.
+	// When value is nil, it will be translated to `IS NOT NULL`.
+	// When value is a slice, it will be translated to `NOT IN`.
+	// Otherwise it will be translated to `!=`.
+	Neq = dbr.Neq
+	// Gt is `>`.
+	Gt = dbr.Gt
+	// Gte is '>='.
+	Gte = dbr.Gte
+	// Lt is '<'.
+	Lt = dbr.Lt
+	// Lte is `<=`.
+	Lte = dbr.Lte
+	// Like is `LIKE`, with an optional `ESCAPE` clause
+	Like = dbr.Like
+	// NotLike is `NOT LIKE`, with an optional `ESCAPE` clause
+	NotLike = dbr.NotLike
+	// Expr allows raw expression to be used when current SQL syntax is
+	// not supported by gocraft/dbr.
+	Expr = dbr.Expr
+)
