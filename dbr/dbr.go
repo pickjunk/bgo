@@ -7,13 +7,18 @@ import (
 	bc "github.com/pickjunk/bgo/config"
 )
 
+// DB session instance, base on dbr.Session
+type DB struct {
+	*dbr.Session
+}
+
 // New dbr.Session
 // if optionalDSN is omited, mysql.dsn in config.yml will be used
 // Supported config(config.yml):
 // mysql.dsn - dsn for connection
 // mysql.maxIdleConns - max idle connections for pool
 // mysql.maxOpenConns - max open connections for pool
-func New(optionalDSN ...string) *dbr.Session {
+func New(optionalDSN ...string) *DB {
 	var dsn string
 
 	if len(optionalDSN) > 0 {
@@ -57,7 +62,9 @@ func New(optionalDSN ...string) *dbr.Session {
 		Int("maxOpenConns", maxOpenConns).
 		Msg("dbr open")
 
-	return conn.NewSession(nil)
+	return &DB{
+		conn.NewSession(nil),
+	}
 }
 
 // export dbr expression function for convenience
