@@ -3,7 +3,7 @@ package log
 import (
 	"runtime"
 
-	zl "github.com/rs/zerolog"
+	zl "github.com/pickjunk/zerolog"
 )
 
 const contextCallerSkipFrameCount = 2

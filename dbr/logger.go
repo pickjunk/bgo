@@ -6,7 +6,7 @@ import (
 	dbr "github.com/gocraft/dbr/opentracing"
 	be "github.com/pickjunk/bgo/error"
 	bl "github.com/pickjunk/bgo/log"
-	"github.com/rs/zerolog"
+	"github.com/pickjunk/zerolog"
 )
 
 // Logger for dbr
@@ -40,14 +40,14 @@ func (l *Logger) EventKv(eventName string, kvs map[string]string) {
 // EventErr func
 func (l *Logger) EventErr(eventName string, err error) error {
 	return &be.SystemError{
-		Event: l.Err(err).Str(zerolog.MessageFieldName, eventName),
+		Event: bl.Dict().Err(err).Str(zerolog.MessageFieldName, eventName),
 		Err:   err,
 	}
 }
 
 // EventErrKv func
 func (l *Logger) EventErrKv(eventName string, err error, kvs map[string]string) error {
-	e := l.Err(err).Str(zerolog.MessageFieldName, eventName)
+	e := bl.Dict().Err(err).Str(zerolog.MessageFieldName, eventName)
 	for k, v := range kvs {
 		e = e.Str(k, v)
 	}

@@ -5,8 +5,8 @@ import (
 	"os"
 
 	"github.com/ghodss/yaml"
-	"github.com/rs/zerolog"
-	zlog "github.com/rs/zerolog/log"
+	"github.com/pickjunk/zerolog"
+	zlog "github.com/pickjunk/zerolog/log"
 	"github.com/tidwall/gjson"
 )
 

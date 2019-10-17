@@ -5,8 +5,8 @@ import (
 
 	bc "github.com/pickjunk/bgo/config"
 	be "github.com/pickjunk/bgo/error"
-	"github.com/rs/zerolog"
-	zlog "github.com/rs/zerolog/log"
+	"github.com/pickjunk/zerolog"
+	zlog "github.com/pickjunk/zerolog/log"
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
@@ -15,33 +15,13 @@ type Logger struct {
 	zerolog.Logger
 }
 
-// Event a custom event for bgo, base on zerolog
-type Event struct {
-	*zerolog.Event
-}
-
-// Panic custom panic to return a custom event
-func (l *Logger) Panic() *Event {
-	return &Event{l.Logger.Panic()}
-}
-
-// Err custom Logger.Err to handle SystemError
-func (l *Logger) Err(err error) *zerolog.Event {
-	event := l.Logger.Err(err)
+// Throw an error and panic
+// Please always use this, it will handle bgo SystemError properly
+func (l *Logger) Throw(err error) *zerolog.Event {
+	event := l.Panic().Err(err)
 
 	if e, ok := err.(*be.SystemError); ok {
-		event = event.Dict("inner", e.Event)
-	}
-
-	return event
-}
-
-// Err custom Event.Err to handle SystemError
-func (l *Event) Err(err error) *zerolog.Event {
-	event := l.Event.Err(err)
-
-	if e, ok := err.(*be.SystemError); ok {
-		event = event.Dict("inner", e.Event)
+		event = event.Merge(e.Event)
 	}
 
 	return event
@@ -83,3 +63,8 @@ func New(component string) *Logger {
 
 	return &Logger{l}
 }
+
+var (
+	// Dict creates an Event to be used with the *Event.Dict or *Event.Merge method.
+	Dict = zerolog.Dict
+)

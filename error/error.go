@@ -3,7 +3,7 @@ package error
 import (
 	"fmt"
 
-	"github.com/rs/zerolog"
+	"github.com/pickjunk/zerolog"
 )
 
 // BusinessError struct
