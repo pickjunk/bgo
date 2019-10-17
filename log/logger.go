@@ -15,9 +15,10 @@ type Logger struct {
 	zerolog.Logger
 }
 
-// Throw an error and panic
-// Please always use this, it will handle bgo SystemError properly
-func (l *Logger) Throw(err error) *zerolog.Event {
+// LogAndPanic an error
+// Please always use this in your business code
+// It will handle bgo SystemError properly
+func (l *Logger) LogAndPanic(err error) *zerolog.Event {
 	event := l.Panic().Err(err)
 
 	if e, ok := err.(*be.SystemError); ok {
