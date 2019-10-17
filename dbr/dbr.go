@@ -98,4 +98,8 @@ var (
 	// Expr allows raw expression to be used when current SQL syntax is
 	// not supported by gocraft/dbr.
 	Expr = dbr.Expr
+	// Union builds
+	Union = dbr.Union
+	// UnionAll builds
+	UnionAll = dbr.UnionAll
 )
