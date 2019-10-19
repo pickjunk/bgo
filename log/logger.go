@@ -27,10 +27,10 @@ func (l *Logger) LogAndPanic(err error) *zerolog.Event {
 	return event
 }
 
-// New a logger
-func New(component string) *Logger {
-	l := zlog.With().Str("component", component).Logger()
+var inner = zlog.With().Str("component", "bgo.log").Logger()
+var outer = zlog.With().Logger()
 
+func init() {
 	logPath := bc.Get("log").String()
 	if logPath != "" {
 		zerolog.SetGlobalLevel(zerolog.InfoLevel)
@@ -38,16 +38,22 @@ func New(component string) *Logger {
 
 		f, err := os.OpenFile(logPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 		if err != nil {
-			l.Fatal().Err(err).Send()
+			inner.Fatal().Err(err).Send()
 		}
-		l.Info().Str("file", logPath).Msg("log redirect")
-		l = l.Output(f)
+		inner.Info().Str("file", logPath).Msg("log redirect")
+
+		outer = outer.Output(f)
 	} else {
 		zerolog.SetGlobalLevel(zerolog.DebugLevel)
-		l = l.Output(zerolog.ConsoleWriter{Out: os.Stdout})
+		outer = outer.Output(zerolog.ConsoleWriter{Out: os.Stdout})
 	}
 
-	l = l.Hook(callerHook{})
+	outer = outer.Hook(callerHook{})
+}
+
+// New a logger
+func New(component string) *Logger {
+	l := outer.With().Str("component", component).Logger()
 
 	return &Logger{l}
 }
