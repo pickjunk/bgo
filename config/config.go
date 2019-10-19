@@ -6,7 +6,6 @@ import (
 
 	"github.com/ghodss/yaml"
 	"github.com/pickjunk/zerolog"
-	zlog "github.com/pickjunk/zerolog/log"
 	"github.com/tidwall/gjson"
 )
 
@@ -15,8 +14,8 @@ var config = initConfig()
 func initConfig() *gjson.Result {
 	// do not depend on bgo/log here, just new a standalone logger for config
 	// to prevent circular dependency
-	log := zlog.With().Str("component", "bgo.config").Logger()
-	log = log.Output(zerolog.ConsoleWriter{Out: os.Stdout})
+	log := zerolog.New(zerolog.ConsoleWriter{Out: os.Stdout})
+	log = log.With().Str("component", "bgo.config").Logger()
 
 	var config gjson.Result
 

@@ -6,7 +6,6 @@ import (
 	bc "github.com/pickjunk/bgo/config"
 	be "github.com/pickjunk/bgo/error"
 	"github.com/pickjunk/zerolog"
-	zlog "github.com/pickjunk/zerolog/log"
 )
 
 // Logger a custom logger for bgo, base on zerolog
@@ -27,25 +26,28 @@ func (l *Logger) LogAndPanic(err error) *zerolog.Event {
 	return event
 }
 
-var inner = zlog.With().Str("component", "bgo.log").Logger()
-var outer = zlog.With().Logger()
+var inner zerolog.Logger
+var outer zerolog.Logger
 
 func init() {
+	inner = zerolog.New(zerolog.ConsoleWriter{Out: os.Stdout})
+	inner = inner.With().Str("component", "bgo.log").Logger()
+
 	logPath := bc.Get("log").String()
 	if logPath != "" {
-		zerolog.SetGlobalLevel(zerolog.InfoLevel)
-		zerolog.TimeFieldFormat = zerolog.TimeFormatUnixMs
-
 		f, err := os.OpenFile(logPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 		if err != nil {
 			inner.Fatal().Err(err).Send()
 		}
 		inner.Info().Str("file", logPath).Msg("log redirect")
 
-		outer = outer.Output(f)
+		outer = zerolog.New(f)
+		outer = outer.With().Str("component", "bgo.log").Logger()
+		outer = outer.Level(zerolog.InfoLevel)
+		zerolog.TimeFieldFormat = zerolog.TimeFormatUnixMs
 	} else {
-		zerolog.SetGlobalLevel(zerolog.DebugLevel)
-		outer = outer.Output(zerolog.ConsoleWriter{Out: os.Stdout})
+		outer = zerolog.New(zerolog.ConsoleWriter{Out: os.Stdout})
+		outer = outer.Level(zerolog.DebugLevel)
 	}
 
 	outer = outer.Hook(callerHook{})
@@ -54,7 +56,6 @@ func init() {
 // New a logger
 func New(component string) *Logger {
 	l := outer.With().Str("component", component).Logger()
-
 	return &Logger{l}
 }
 
