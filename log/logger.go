@@ -40,6 +40,7 @@ func New(component string) *Logger {
 		if err != nil {
 			l.Fatal().Err(err).Send()
 		}
+		l.Info().Str("file", logPath).Msg("log redirect")
 		l = l.Output(f)
 	} else {
 		zerolog.SetGlobalLevel(zerolog.DebugLevel)
