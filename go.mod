@@ -1,7 +1,6 @@
 module github.com/pickjunk/bgo
 
 require (
-	github.com/BurntSushi/toml v0.3.1 // indirect
 	github.com/DATA-DOG/go-sqlmock v1.3.2 // indirect
 	github.com/codahale/hdrhistogram v0.0.0-20161010025455-3a0bb77429bd // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
@@ -28,6 +27,5 @@ require (
 	google.golang.org/appengine v1.4.0 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/mail.v2 v2.3.1 // indirect
-	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 	gopkg.in/yaml.v2 v2.2.2 // indirect
 )
