@@ -14,7 +14,7 @@ var config = initConfig()
 func initConfig() *gjson.Result {
 	// do not depend on bgo/log here, just new a standalone logger for config
 	// to prevent circular dependency
-	log := zerolog.New(zerolog.ConsoleWriter{Out: os.Stdout})
+	log := zerolog.New(zerolog.ConsoleWriter{Out: os.Stdout}).With().Timestamp().Logger()
 	log = log.With().Str("component", "bgo.config").Logger()
 
 	var config gjson.Result
