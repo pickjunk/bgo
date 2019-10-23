@@ -30,6 +30,7 @@ var inner zerolog.Logger
 var outer zerolog.Logger
 
 func init() {
+	zerolog.TimeFieldFormat = zerolog.TimeFormatUnixMs
 	inner = zerolog.New(zerolog.ConsoleWriter{Out: os.Stdout})
 	inner = inner.With().Str("component", "bgo.log").Logger()
 
@@ -44,7 +45,6 @@ func init() {
 		outer = zerolog.New(f)
 		outer = outer.With().Str("component", "bgo.log").Logger()
 		outer = outer.Level(zerolog.InfoLevel)
-		zerolog.TimeFieldFormat = zerolog.TimeFormatUnixMs
 	} else {
 		outer = zerolog.New(zerolog.ConsoleWriter{Out: os.Stdout})
 		outer = outer.Level(zerolog.DebugLevel)
