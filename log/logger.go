@@ -31,7 +31,7 @@ var outer zerolog.Logger
 
 func init() {
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnixMs
-	inner = zerolog.New(zerolog.ConsoleWriter{Out: os.Stdout})
+	inner = zerolog.New(zerolog.ConsoleWriter{Out: os.Stdout}).With().Timestamp().Logger()
 	inner = inner.With().Str("component", "bgo.log").Logger()
 
 	logPath := bc.Get("log").String()
@@ -42,11 +42,11 @@ func init() {
 		}
 		inner.Info().Str("file", logPath).Msg("log redirect")
 
-		outer = zerolog.New(f)
+		outer = zerolog.New(f).With().Timestamp().Logger()
 		outer = outer.With().Str("component", "bgo.log").Logger()
 		outer = outer.Level(zerolog.InfoLevel)
 	} else {
-		outer = zerolog.New(zerolog.ConsoleWriter{Out: os.Stdout})
+		outer = zerolog.New(zerolog.ConsoleWriter{Out: os.Stdout}).With().Timestamp().Logger()
 		outer = outer.Level(zerolog.DebugLevel)
 	}
 
