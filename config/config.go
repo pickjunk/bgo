@@ -12,6 +12,7 @@ import (
 var config = initConfig()
 
 func initConfig() *gjson.Result {
+	zerolog.TimeFieldFormat = zerolog.TimeFormatUnixMs
 	// do not depend on bgo/log here, just new a standalone logger for config
 	// to prevent circular dependency
 	log := zerolog.New(zerolog.ConsoleWriter{Out: os.Stdout}).With().Timestamp().Logger()
