@@ -2,13 +2,14 @@ package bgo
 
 import (
 	"context"
+	"crypto/md5"
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"os"
 	"regexp"
 	"strings"
-	"crypto/md5"
-	"os"
-	"fmt"
+	"errors"
 
 	graphql "github.com/graph-gophers/graphql-go"
 )
@@ -48,7 +49,7 @@ func relay(ctx context.Context, schema *graphql.Schema) {
 
 	response := schema.Exec(ctx, params.Query, params.OperationName, params.Variables)
 
-	hasPanic := false
+	hasErrors := []string{}
 
 	// https://github.com/graph-gophers/graphql-go/pull/207
 	if response.Errors != nil {
@@ -62,10 +63,11 @@ func relay(ctx context.Context, schema *graphql.Schema) {
 				continue
 			}
 
+			hasErrors = append(hasErrors, rErr.Message)
+
 			// mask panic error
 			if strings.Contains(rErr.Message, panicMsg) {
 				rErr.Message = panicMsg
-				hasPanic = true
 				continue
 			}
 		}
@@ -77,7 +79,8 @@ func relay(ctx context.Context, schema *graphql.Schema) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	if hasPanic {
+	if len(hasErrors) > 0 {
+		log.Error().Err(errors.New(strings.Join(hasErrors, ", "))).Send()
 		http.Error(w, string(responseJSON), http.StatusInternalServerError)
 	} else {
 		w.Write(responseJSON)
