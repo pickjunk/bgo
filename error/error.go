@@ -2,8 +2,6 @@ package error
 
 import (
 	"fmt"
-
-	"github.com/pickjunk/zerolog"
 )
 
 // BusinessError struct
@@ -24,14 +22,4 @@ func Throw(code int, msg string) {
 		Code: code,
 		Msg:  msg,
 	})
-}
-
-// SystemError struct
-type SystemError struct {
-	Event *zerolog.Event
-	Err   error
-}
-
-func (e SystemError) Error() string {
-	return e.Err.Error()
 }

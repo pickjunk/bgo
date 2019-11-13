@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	graphql "github.com/graph-gophers/graphql-go"
-	be "github.com/pickjunk/bgo/error"
 )
 
 // Graphql struct
@@ -19,17 +18,7 @@ type graphqlLogger struct{}
 
 // LogPanic is used to log recovered panic values that occur during query execution
 func (l *graphqlLogger) LogPanic(_ context.Context, value interface{}) {
-	// skip business error
-	if _, ok := value.(*be.BusinessError); ok {
-		return
-	}
-
-	// skip system error
-	if _, ok := value.(*be.SystemError); ok {
-		return
-	}
-
-	log.Error().Msgf("graphql: %v", value)
+	// log panic error in relay.go, should not log here
 }
 
 // Graphql create a graphql endpoint

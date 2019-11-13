@@ -4,26 +4,12 @@ import (
 	"os"
 
 	bc "github.com/pickjunk/bgo/config"
-	be "github.com/pickjunk/bgo/error"
-	"github.com/pickjunk/zerolog"
+	"github.com/rs/zerolog"
 )
 
 // Logger a custom logger for bgo, base on zerolog
 type Logger struct {
 	zerolog.Logger
-}
-
-// LogAndPanic an error
-// Please always use this in your business code
-// It will handle bgo SystemError properly
-func (l *Logger) LogAndPanic(err error) *zerolog.Event {
-	event := l.Panic().Err(err)
-
-	if e, ok := err.(*be.SystemError); ok {
-		event = event.Merge(e.Event)
-	}
-
-	return event
 }
 
 var inner zerolog.Logger

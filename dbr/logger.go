@@ -2,11 +2,10 @@ package dbr
 
 import (
 	"time"
+	"errors"
 
 	dbr "github.com/gocraft/dbr/opentracing"
-	be "github.com/pickjunk/bgo/error"
 	bl "github.com/pickjunk/bgo/log"
-	"github.com/pickjunk/zerolog"
 )
 
 // Logger for dbr
@@ -39,22 +38,16 @@ func (l *Logger) EventKv(eventName string, kvs map[string]string) {
 
 // EventErr func
 func (l *Logger) EventErr(eventName string, err error) error {
-	return &be.SystemError{
-		Event: bl.Dict().Err(err).Str(zerolog.MessageFieldName, eventName),
-		Err:   err,
-	}
+	return errors.New(eventName + ": msg=" + err.Error())
 }
 
 // EventErrKv func
 func (l *Logger) EventErrKv(eventName string, err error, kvs map[string]string) error {
-	e := bl.Dict().Err(err).Str(zerolog.MessageFieldName, eventName)
+	msg := eventName + ": msg=" + err.Error()
 	for k, v := range kvs {
-		e = e.Str(k, v)
+		msg += " " + k + "=" + v
 	}
-	return &be.SystemError{
-		Event: e,
-		Err:   err,
-	}
+	return errors.New(msg)
 }
 
 // Timing func

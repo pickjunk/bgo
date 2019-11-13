@@ -63,7 +63,8 @@ func relay(ctx context.Context, schema *graphql.Schema) {
 				continue
 			}
 
-			hasErrors = append(hasErrors, rErr.Message)
+			errMsg := rErr.Message
+			hasErrors = append(hasErrors, errMsg)
 
 			// mask panic error
 			if strings.Contains(rErr.Message, panicMsg) {

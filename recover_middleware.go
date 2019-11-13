@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	ot "github.com/opentracing/opentracing-go"
-	otlog "github.com/opentracing/opentracing-go/log"
 	be "github.com/pickjunk/bgo/error"
 )
 
@@ -23,7 +22,9 @@ func recoverMiddleware(ctx context.Context, next Handle) {
 				w.Write([]byte(t.Error()))
 				return
 			case string:
-				err = errors.New(t)
+				if t != "" {
+					err = errors.New(t)
+				}
 			case error:
 				err = t
 			default:
@@ -32,14 +33,11 @@ func recoverMiddleware(ctx context.Context, next Handle) {
 
 			span := ot.SpanFromContext(ctx)
 			if span != nil {
-				span.LogFields(otlog.String("event", "error"), otlog.Error(err))
+				span.LogEvent("Internal Server Error")
 			}
 
-			// log other error, except SystemError
-			// SystemError should be log before it raised
-			// so do not log it twice here
-			if _, ok := err.(*be.SystemError); !ok {
-				log.Err(err).Stack().Send()
+			if err != nil {
+				log.Err(err).Send()
 			}
 
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
