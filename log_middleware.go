@@ -9,7 +9,7 @@ import (
 
 	ot "github.com/opentracing/opentracing-go"
 	otext "github.com/opentracing/opentracing-go/ext"
-	"github.com/pickjunk/zerolog"
+	"github.com/rs/zerolog"
 )
 
 // https://www.reddit.com/r/golang/comments/7p35s4/how_do_i_get_the_response_status_for_my_middleware/

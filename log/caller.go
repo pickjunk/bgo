@@ -3,10 +3,10 @@ package log
 import (
 	"runtime"
 
-	zl "github.com/pickjunk/zerolog"
+	zl "github.com/rs/zerolog"
 )
 
-const contextCallerSkipFrameCount = 2
+const contextCallerSkipFrameCount = 3
 
 // fork from zerolog
 // to support severity-based caller logging

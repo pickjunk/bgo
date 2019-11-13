@@ -17,6 +17,7 @@ require (
 	github.com/opentracing/opentracing-go v1.0.2
 	github.com/pickjunk/zerolog v1.15.2
 	github.com/rs/cors v1.6.0
+	github.com/rs/zerolog v1.16.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/stretchr/testify v1.3.0
 	github.com/tidwall/gjson v1.3.2
