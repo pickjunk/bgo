@@ -20,7 +20,7 @@ require (
 	github.com/rs/zerolog v1.16.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/stretchr/testify v1.3.0
-	github.com/tidwall/gjson v1.3.2
+	github.com/tidwall/gjson v1.9.3
 	github.com/uber-go/atomic v1.3.2 // indirect
 	github.com/uber/jaeger-client-go v2.15.1-0.20190214182810-64f57863bf63+incompatible
 	github.com/uber/jaeger-lib v2.0.1-0.20190122222657-d036253de8f5+incompatible // indirect
