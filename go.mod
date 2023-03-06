@@ -9,12 +9,12 @@ require (
 	github.com/go-mail/mail v2.3.1+incompatible
 	github.com/go-sql-driver/mysql v1.4.1
 	github.com/gocraft/dbr v0.0.0-20190131145710-48a049970bd2
-	github.com/graph-gophers/graphql-go v0.0.0-20190214043811-70e684c13100
+	github.com/graph-gophers/graphql-go v1.3.0
 	github.com/imroc/req v0.2.4
 	github.com/jmoiron/sqlx v1.2.0 // indirect
 	github.com/julienschmidt/httprouter v1.2.0
 	github.com/mattn/go-sqlite3 v1.10.0 // indirect
-	github.com/opentracing/opentracing-go v1.0.2
+	github.com/opentracing/opentracing-go v1.1.0
 	github.com/pickjunk/zerolog v1.15.2
 	github.com/rs/cors v1.6.0
 	github.com/rs/zerolog v1.16.0
